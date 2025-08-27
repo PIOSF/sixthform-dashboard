@@ -254,6 +254,28 @@
             </div>
         </div>
     </div>
+    
+    <div id="add-student-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New Student</h2>
+            <form id="add-student-form" class="modal-form">
+                <label for="student-name-input">Student Name:</label>
+                <input type="text" id="student-name-input" name="studentName" required>
+
+                <label for="uni-select">University:</label>
+                <select id="uni-select" name="uni" required>
+                    <option value="" disabled selected>Select a university...</option>
+                    <option value="Edinburgh">Edinburgh</option>
+                    <option value="Manchester">Manchester</option>
+                    <option value="Oxford">Oxford</option>
+                    <option value="Warwick">Warwick</option>
+                </select>
+                <button type="submit" class="admin-btn">Add Student</button>
+            </form>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -270,6 +292,7 @@
             const mainLoginBtn = document.getElementById('login-btn');
             const loginModal = document.getElementById('login-modal');
             const addShoutoutModal = document.getElementById('add-shoutout-modal');
+            const addStudentModal = document.getElementById('add-student-modal'); // New modal element
 
             // --- DEFINE EVENT HANDLERS (what happens on click, etc.) ---
             function handleMainLoginClick() {
@@ -294,6 +317,11 @@
                 document.getElementById('timestamp').value = new Date().toLocaleString();
                 addShoutoutModal.style.display = "block";
             }
+
+            function handleAddStudentClick() {
+                document.getElementById('add-student-form').reset();
+                addStudentModal.style.display = "block";
+            }
             
             // --- ATTACH EVENT LISTENERS (make buttons and modals interactive) ---
             mainLoginBtn.addEventListener('click', handleMainLoginClick);
@@ -303,12 +331,17 @@
             addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = 'none');
             document.getElementById('add-shoutout-btn').addEventListener('click', handleAddShoutoutClick);
             
+            // New Listeners for Add Student
+            addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = 'none');
+            document.getElementById('add-student-btn').addEventListener('click', handleAddStudentClick);
+            
             document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
             document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
 
             window.addEventListener('click', (event) => {
                 if (event.target == addShoutoutModal) addShoutoutModal.style.display = "none";
                 if (event.target == loginModal) loginModal.style.display = "none";
+                if (event.target == addStudentModal) addStudentModal.style.display = "none"; // New
             });
 
             document.getElementById('shoutout-form').addEventListener('submit', (event) => {
@@ -325,21 +358,33 @@
                     .catch(console.error);
             });
 
+            // New: Add Student Form Submission
+            document.getElementById('add-student-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const newStudent = {
+                    name: formData.get('studentName'),
+                    uni: formData.get('uni')
+                };
+                firebase.database().ref('students').push(newStudent)
+                    .then(() => {
+                        addStudentModal.style.display = "none";
+                        alert(`Student "${newStudent.name}" added successfully!`);
+                    })
+                    .catch(console.error);
+            });
+
             // --- FIREBASE CONNECTION ---
             try {
-                // =======================================================================
-                // ▼▼▼ PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ▼▼▼
-                // =======================================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
-  authDomain: "piosf-7ab81.firebaseapp.com",
-  databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
-  projectId: "piosf-7ab81",
-  storageBucket: "piosf-7ab81.firebasestorage.app",
-  messagingSenderId: "198847746183",
-  appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
-};
-                // =======================================================================
+                const firebaseConfig = {
+                    apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
+                    authDomain: "piosf-7ab81.firebaseapp.com",
+                    databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
+                    projectId: "piosf-7ab81",
+                    storageBucket: "piosf-7ab81.appspot.com",
+                    messagingSenderId: "198847746183",
+                    appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
+                };
                 
                 firebase.initializeApp(firebaseConfig);
                 const database = firebase.database();
