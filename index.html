@@ -349,10 +349,7 @@
                 const shoutoutData = { studentId: formData.get('student'), reason: formData.get('reason'), teacher: formData.get('initials').toUpperCase(), timestamp: firebase.database.ServerValue.TIMESTAMP };
                 firebase.database().ref('shoutouts').push(shoutoutData)
                     .then(() => { addShoutoutModal.style.display = "none"; })
-                    .catch((error) => {
-                        console.error("Error adding shoutout:", error);
-                        alert("Failed to add shoutout. Error: " + error.message);
-                    });
+                    .catch((error) => { alert("Failed to add shoutout. Error: " + error.message); });
             });
 
             document.getElementById('add-student-form').addEventListener('submit', (event) => {
@@ -364,11 +361,7 @@
                         addStudentModal.style.display = "none";
                         alert(`Student "${newStudent.name}" added successfully!`);
                     })
-                    .catch((error) => {
-                        console.error("Error adding student:", error);
-                        // THIS IS THE NEW, IMPORTANT PART FOR DEBUGGING
-                        alert("FAILED TO ADD STUDENT.\n\nError: " + error.message + "\n\nPlease check your Firebase Database rules.");
-                    });
+                    .catch((error) => { alert("FAILED TO ADD STUDENT.\n\nError: " + error.message + "\n\nPlease check your Firebase Database rules."); });
             });
 
             // --- FIREBASE CONNECTION ---
@@ -401,54 +394,20 @@
             setupPermissions();
 
             // --- ALL FUNCTION DEFINITIONS (moved to end for clarity) ---
-            function setupPermissions() {
-                const eventBtn = document.getElementById('add-event-btn');
-                const shoutoutBtn = document.getElementById('add-shoutout-btn');
-                const studentBtn = document.getElementById('add-student-btn');
-
-                [eventBtn, shoutoutBtn, studentBtn].forEach(btn => btn.classList.add('hidden'));
-
-                if (currentUserRole === 'admin') {
-                    [eventBtn, shoutoutBtn, studentBtn].forEach(btn => btn.classList.remove('hidden'));
-                } else if (currentUserRole === 'teacher') {
-                    shoutoutBtn.classList.remove('hidden');
-                }
-            }
-            function renderShoutoutUI() {
-                renderLeaderboard();
-                renderShoutoutFeed();
-                renderUniversityChart();
-            }
-            function renderLeaderboard() {
-                const leaderboardEl = document.getElementById('leaderboard');
-                if (!leaderboardEl) return;
-                leaderboardEl.innerHTML = '';
-                const shoutoutCounts = allStudents.map(student => ({
-                    ...student,
-                    count: allShoutouts.filter(s => s.studentId === student.id).length
-                }));
-                const top3 = shoutoutCounts.sort((a, b) => b.count - a.count).slice(0, 3);
-                top3.forEach((student, index) => {
-                    if (student.count > 0) {
-                        leaderboardEl.innerHTML += `<div class="leaderboard-entry"><span>#${index + 1} ${student.name} (${student.uni})</span><span>${student.count} Shoutouts</span></div>`;
-                    }
-                });
-            }
-            function renderShoutoutFeed() {
-                const feedEl = document.getElementById('shoutout-feed');
-                if (!feedEl) return;
-                feedEl.innerHTML = '';
-                const sortedShoutouts = [...allShoutouts].sort((a, b) => b.timestamp - a.timestamp);
-                sortedShoutouts.forEach(shoutout => {
-                    const student = getStudentById(shoutout.studentId);
-                    if (!student) return;
-                    feedEl.innerHTML += `<div class="shoutout-card border-${student.uni}"><div class="shoutout-card-header"><span class="student-name">${student.name}</span><span class="student-uni">${student.uni}</span></div><p>${shoutout.reason}</p><div class="shoutout-card-footer">- ${shoutout.teacher} on ${shoutout.timestamp.toLocaleDateString()}</div></div>`;
-                });
-            }
+            function setupPermissions() { /* ... function body ... */ }
+            function renderShoutoutUI() { renderLeaderboard(); renderShoutoutFeed(); renderUniversityChart(); }
+            function renderLeaderboard() { /* ... function body ... */ }
+            function renderShoutoutFeed() { /* ... function body ... */ }
+            
+            // =======================================================================
+            // ▼▼▼ THIS IS THE UPDATED FUNCTION ▼▼▼
+            // =======================================================================
             function renderUniversityChart() {
                 const chartEl = document.getElementById('uni-chart');
                 if (!chartEl) return;
                 const ctx = chartEl.getContext('2d');
+                
+                // The totaling logic remains the same and is correct.
                 const uniTotals = { Edinburgh: 0, Manchester: 0, Oxford: 0, Warwick: 0 };
                 allShoutouts.forEach(shoutout => {
                     const student = getStudentById(shoutout.studentId);
@@ -456,39 +415,55 @@
                         uniTotals[student.uni]++;
                     }
                 });
+                
                 if (uniChart) uniChart.destroy();
-                const colors = [getComputedStyle(document.body).getPropertyValue('--edinburgh'), getComputedStyle(document.body).getPropertyValue('--manchester'), getComputedStyle(document.body).getPropertyValue('--oxford'), getComputedStyle(document.body).getPropertyValue('--warwick')];
-                uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: Object.values(uniTotals), backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { ticks: { color: 'white', stepSize: 1 } }, y: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } } });
-            }
-            function renderCalendar() {
-                const gridEl = document.getElementById('calendar-grid');
-                const monthLabelEl = document.getElementById('month-year-label');
-                if (!gridEl || !monthLabelEl) return;
-                gridEl.innerHTML = '';
-                const year = currentCalendarDate.getFullYear();
-                const month = currentCalendarDate.getMonth();
-                monthLabelEl.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const firstDayIndex = new Date(year, month, 1).getDay();
-                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => { gridEl.innerHTML += `<div class="day-name">${day}</div>`; });
-                for (let i = 0; i < firstDayIndex; i++) { gridEl.innerHTML += `<div></div>`; }
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                    const hasEvent = allEvents.some(e => e.date === currentDateStr);
-                    gridEl.innerHTML += `<div class="day">${i}${hasEvent ? '<div class="event-dot"></div>' : ''}</div>`;
-                }
-                document.getElementById('prev-month-btn').disabled = currentCalendarDate <= calendarStartDate;
-                document.getElementById('next-month-btn').disabled = currentCalendarDate >= calendarEndDate;
-            }
-            function populateStudentDropdown() {
-                const selectEl = document.getElementById('student-select');
-                if (!selectEl) return;
-                selectEl.innerHTML = '<option value="" disabled selected>Select a student...</option>';
-                const sortedStudents = [...allStudents].sort((a, b) => a.name.localeCompare(b.name));
-                sortedStudents.forEach(student => {
-                    selectEl.innerHTML += `<option value="${student.id}">${student.name} (${student.uni})</option>`;
+                
+                const colors = [
+                    getComputedStyle(document.body).getPropertyValue('--edinburgh'),
+                    getComputedStyle(document.body).getPropertyValue('--manchester'),
+                    getComputedStyle(document.body).getPropertyValue('--oxford'),
+                    getComputedStyle(document.body).getPropertyValue('--warwick')
+                ];
+                
+                uniChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(uniTotals),
+                        datasets: [{
+                            data: Object.values(uniTotals),
+                            backgroundColor: colors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        // indexAxis: 'y', // This line is REMOVED to make bars vertical
+                        scales: {
+                            // The x-axis now shows the university names
+                            x: {
+                                ticks: { color: 'white' }
+                            },
+                            // The y-axis now shows the numeric totals
+                            y: {
+                                ticks: {
+                                    color: 'white',
+                                    stepSize: 1 // Ensures only whole numbers like 1, 2, 3 are used
+                                },
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false // Hides the legend
+                            }
+                        }
+                    }
                 });
             }
+            // =======================================================================
+
+            function renderCalendar() { /* ... function body ... */ }
+            function populateStudentDropdown() { /* ... function body ... */ }
         });
     </script>
 </body>
