@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
     <style>
         :root {
@@ -18,14 +22,15 @@
             --text-color: #e0e0e0;
             --header-blue: #0f3460;
             --pink-accent: #e94560;
-            --green-shoutout: #1e4a43;
             --header-height: 80px;
+            --dark-green-fill: #164A41;
+            --very-dark-red-event-fill: #4d0000;
             
-            /* University Official Colours */
-            --edinburgh: #150042;
-            --manchester: #660099;
-            --oxford: #002147;
-            --warwick: #2b4e80;
+            /* Lighter University Colours */
+            --edinburgh: #FF4747;
+            --manchester: #FFD700;
+            --oxford: #5CD2E6;
+            --warwick: #B15DFF;
         }
 
         body {
@@ -33,7 +38,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding-top: var(--header-height); /* Prevent content from hiding under sticky header */
+            padding-top: var(--header-height);
         }
 
         /* --- Header --- */
@@ -57,16 +62,17 @@
             font-family: 'Georgia', serif;
             font-size: 2.5em;
             color: white;
-            font-weight: 700;
+            font-weight: normal;
         }
 
-        .header-title i { font-weight: 400; }
+        .header-title i { font-weight: normal; font-style: italic; }
 
         .dashboard-font {
             font-family: 'Pacifico', cursive;
             color: var(--pink-accent);
             font-size: 1.2em;
             margin-left: 15px;
+            font-weight: normal;
         }
 
         #login-btn {
@@ -86,7 +92,7 @@
         /* --- Main Content Layout --- */
         .main-container {
             display: grid;
-            grid-template-columns: 1fr 2.5fr; /* Two main sections: Events | Shoutouts */
+            grid-template-columns: 1fr 2.5fr;
             gap: 25px;
             padding: 25px;
             height: calc(100vh - var(--header-height) - 50px);
@@ -95,8 +101,8 @@
         .content-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Space between title and content box */
-            min-height: 0; /* Fix for flexbox content overflow */
+            gap: 20px;
+            min-height: 0;
         }
 
         .content-banner {
@@ -109,9 +115,9 @@
 
         .shoutouts-columns {
             display: grid;
-            grid-template-columns: 1.5fr 1fr; /* Individual | University */
+            grid-template-columns: 1.5fr 1fr;
             gap: 25px;
-            flex-grow: 1; /* Make this fill the wrapper */
+            flex-grow: 1;
             min-height: 0;
         }
         
@@ -123,10 +129,10 @@
             flex-direction: column;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             min-height: 0;
-            flex-grow: 1; /* Make columns fill their container */
+            flex-grow: 1;
         }
 
-        .column h2 { /* Subtitles like "Individual Challenge" */
+        .column h2 {
             text-align: center;
             margin-top: 0;
             color: var(--text-color);
@@ -138,29 +144,111 @@
         .admin-btn {
             padding: 10px; width: 100%; background-color: var(--pink-accent);
             border: none; color: white; font-size: 1em; cursor: pointer;
-            border-radius: 5px; margin-top: 15px; transition: background-color 0.3s;
+            border-radius: 5px; margin-top: 0;
+            transition: background-color 0.3s;
         }
         .admin-btn:hover { background-color: #c43751; }
         .hidden { display: none; }
+        .admin-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .admin-tools-group {
+            display: flex;
+            gap: 10px;
+        }
 
-        /* --- Calendar --- */
-        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        /* --- Weekly Calendar --- */
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .calendar-nav-buttons { display: flex; gap: 5px; }
         .calendar-nav button { background: none; border: 1px solid var(--pink-accent); color: var(--pink-accent); cursor: pointer; padding: 5px 10px; border-radius: 5px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-        .day-name { font-weight: bold; font-size: 0.8em; }
-        .day { padding: 8px 0; border-radius: 4px; position: relative; }
-        .event-dot { height: 6px; width: 6px; background-color: var(--pink-accent); border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
+        #week-view {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .week-day {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 5px;
+        }
+        .week-day:last-child {
+            border-bottom: none;
+        }
+        .day-header {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .day-header .date {
+            font-weight: normal;
+            opacity: 0.7;
+            margin-left: 8px;
+            font-size: 0.9em;
+        }
+        .events-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 5px 0 0 0;
+        }
+        .events-list li {
+            font-size: 0.9em;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            background-color: var(--very-dark-red-event-fill);
+            color: white;
+            font-weight: bold;
+            border: 4px solid transparent;
+        }
+        .event-unis {
+            display: block;
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+        .no-events {
+            font-style: italic;
+            opacity: 0.5;
+            font-size: 0.9em;
+            padding-left: 15px;
+        }
+        #uni-chart-container {
+            flex-grow: 1;
+            position: relative;
+        }
 
-        /* --- Shoutouts --- */
+        /* --- Custom Scrollbar Styling --- */
+        #shoutout-feed, #week-view {
+            scrollbar-width: thin;
+            scrollbar-color: var(--pink-accent) var(--card-color);
+        }
+        #shoutout-feed::-webkit-scrollbar, #week-view::-webkit-scrollbar {
+            width: 8px;
+        }
+        #shoutout-feed::-webkit-scrollbar-track, #week-view::-webkit-scrollbar-track {
+            background: var(--card-color);
+        }
+        #shoutout-feed::-webkit-scrollbar-thumb, #week-view::-webkit-scrollbar-thumb {
+            background-color: var(--pink-accent);
+            border-radius: 10px;
+        }
+        
         #leaderboard { margin-bottom: 20px; flex-shrink: 0; }
         .leaderboard-entry { display: flex; justify-content: space-between; padding: 10px; margin-bottom: 5px; border-radius: 5px; background-color: rgba(255,255,255,0.05); }
-        #shoutout-feed { flex-grow: 1; overflow-y: auto; padding-right: 10px; }
-        #shoutout-feed::-webkit-scrollbar { width: 8px; }
-        #shoutout-feed::-webkit-scrollbar-track { background: var(--card-color); }
-        #shoutout-feed::-webkit-scrollbar-thumb { background-color: var(--pink-accent); border-radius: 10px; }
-        .shoutout-card { background-color: var(--green-shoutout); border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 8px solid; }
-        .shoutout-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .shoutout-card-header .student-name { font-size: 1.2em; font-weight: bold; }
+        
+        .shoutout-card {
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            background-color: var(--dark-green-fill);
+            border: 4px solid;
+        }
+        .shoutout-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .shoutout-card-header .student-name { font-size: 1.1em; font-weight: bold; }
+        .shoutout-card .reason { font-size: 0.9em; margin-top: 0; margin-bottom: 5px; }
+        .shoutout-card-footer { font-size: 0.8em; opacity: 0.7; }
+
         .border-Edinburgh { border-color: var(--edinburgh); }
         .border-Manchester { border-color: var(--manchester); }
         .border-Oxford { border-color: var(--oxford); }
@@ -168,11 +256,97 @@
 
         /* --- Modal --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
-        .modal-content { background-color: var(--card-color); margin: 15% auto; padding: 30px; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 500px; border-radius: 10px; }
+        .modal-content { background-color: var(--card-color); margin: 10% auto; padding: 30px; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 500px; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .modal-form label { display: block; margin-top: 15px; font-weight: bold; }
         .modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #555; background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box; }
+        .modal-form input[type="text"]:read-only { cursor: pointer; }
         .modal-form button { width: 100%; margin-top: 20px; }
+        .modal-form small { opacity: 0.7; font-weight: normal; }
+        .modal-form p { line-height: 1.5; }
+
+        /* --- Checkbox Styling --- */
+        #event-unis-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-color: var(--bg-color);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+        }
+        #event-unis-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: normal;
+        }
+        #event-unis-checkboxes input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* --- Recipient Input Styling --- */
+        .recipient-input-wrapper { position: relative; }
+        .recipient-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: var(--bg-color);
+            cursor: text;
+        }
+        .recipient-tag {
+            display: flex;
+            align-items: center;
+            background-color: var(--pink-accent);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .recipient-tag .remove-tag {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #recipient-input {
+            flex-grow: 1;
+            border: none;
+            background: none;
+            outline: none;
+            color: var(--text-color);
+            padding: 5px;
+            min-width: 150px;
+        }
+        .autocomplete-results {
+            position: absolute;
+            background-color: var(--card-color);
+            border: 1px solid #555;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1002;
+        }
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-item:hover, .autocomplete-item.selected {
+            background-color: var(--pink-accent);
+        }
+        .autocomplete-item .uni-name {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        .autocomplete-item.uni-select {
+            font-weight: bold;
+            color: var(--pink-accent);
+        }
 
         /* --- Login Modal Styling --- */
         #login-role-selector { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
@@ -195,12 +369,20 @@
             <h1 class="content-banner">Events</h1>
             <div class="column">
                 <div class="calendar-nav">
-                    <button id="prev-month-btn">&lt;</button>
-                    <h3 id="month-year-label">September 2025</h3>
-                    <button id="next-month-btn">&gt;</button>
+                    <div class="calendar-nav-buttons">
+                        <button id="prev-week-btn">&lt;</button>
+                        <button id="next-week-btn">&gt;</button>
+                        <button id="this-week-btn">This Week</button>
+                    </div>
+                    <h3 id="week-range-label">Week Range</h3>
                 </div>
-                <div class="calendar-grid" id="calendar-grid"></div>
-                <button id="add-event-btn" class="admin-btn hidden">Add Event</button>
+                <div class="admin-tools hidden">
+                    <div class="admin-tools-group">
+                        <button id="add-event-btn" class="admin-btn">Add Event</button>
+                        <button id="bulk-add-events-btn" class="admin-btn">Bulk Add</button>
+                    </div>
+                </div>
+                <div id="week-view"></div>
             </div>
         </div>
 
@@ -209,16 +391,24 @@
             <div class="shoutouts-columns">
                 <div class="column">
                     <h2>Individual Challenge</h2>
+                    <div class="admin-tools hidden">
+                        <button id="add-shoutout-btn" class="admin-btn">Add Shoutout</button>
+                    </div>
                     <div id="leaderboard"></div>
                     <div id="shoutout-feed"></div>
-                    <button id="add-shoutout-btn" class="admin-btn hidden">Add Shoutout</button>
                 </div>
                 <div class="column">
                     <h2>University Challenge</h2>
+                    <div class="admin-tools hidden">
+                        <div class="admin-tools-group">
+                           <button id="add-student-btn" class="admin-btn">Add Student</button>
+                           <button id="bulk-add-btn" class="admin-btn">Bulk Add</button>
+                        </div>
+                        <button id="manage-data-btn" class="admin-btn">Manage Data</button>
+                    </div>
                     <div id="uni-chart-container">
                         <canvas id="uni-chart"></canvas>
                     </div>
-                    <button id="add-student-btn" class="admin-btn hidden">Add Student</button>
                 </div>
             </div>
         </div>
@@ -229,8 +419,13 @@
             <span class="close-btn">&times;</span>
             <h2>Log a New Shoutout</h2>
             <form id="shoutout-form" class="modal-form">
-                <label for="student-select">Awarded to:</label>
-                <select id="student-select" name="student" required></select>
+                <label for="recipient-input">Awarded to:</label>
+                <div class="recipient-input-wrapper">
+                    <div id="recipient-container" class="recipient-container">
+                        <input type="text" id="recipient-input" placeholder="Type student or university name...">
+                    </div>
+                    <div id="autocomplete-results" class="autocomplete-results" style="display: none;"></div>
+                </div>
                 <label for="shoutout-reason">Reason:</label>
                 <textarea id="shoutout-reason" name="reason" rows="4" required></textarea>
                 <label for="teacher-initials">Teacher Initials:</label>
@@ -241,7 +436,6 @@
             </form>
         </div>
     </div>
-
     <div id="login-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -254,7 +448,6 @@
             </div>
         </div>
     </div>
-    
     <div id="add-student-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -262,7 +455,6 @@
             <form id="add-student-form" class="modal-form">
                 <label for="student-name-input">Student Name:</label>
                 <input type="text" id="student-name-input" name="studentName" required>
-
                 <label for="uni-select">University:</label>
                 <select id="uni-select" name="uni" required>
                     <option value="" disabled selected>Select a university...</option>
@@ -275,36 +467,80 @@
             </form>
         </div>
     </div>
+    <div id="add-event-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New Event</h2>
+            <form id="add-event-form" class="modal-form">
+                <label for="event-title-input">Event Title:</label>
+                <input type="text" id="event-title-input" name="eventTitle" required>
+
+                <label for="event-date-input">Date:</label>
+                <input type="text" id="event-date-input" name="eventDate" placeholder="Select a date..." readonly="readonly" required>
+                
+                <label for="event-unis-checkboxes">Involved Universities:</label>
+                <div id="event-unis-checkboxes">
+                    <label><input type="checkbox" name="eventUnis" value="Edinburgh"> Edinburgh</label>
+                    <label><input type="checkbox" name="eventUnis" value="Manchester"> Manchester</label>
+                    <label><input type="checkbox" name="eventUnis" value="Oxford"> Oxford</label>
+                    <label><input type="checkbox" name="eventUnis" value="Warwick"> Warwick</label>
+                </div>
+                
+                <button type="submit" class="admin-btn">Add Event</button>
+            </form>
+        </div>
+    </div>
+    <div id="bulk-add-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Bulk Add Students</h2>
+            <form id="bulk-add-form" class="modal-form">
+                <p>Upload a CSV file with student data. The file must have two columns with no header row:</p>
+                <p><strong>Column A:</strong> Student Name<br><strong>Column B:</strong> University Name</p>
+                <p><small>Valid university names are: Edinburgh, Manchester, Oxford, Warwick. Rows with invalid university names will be skipped.</small></p>
+                <input type="file" id="csv-file-input" accept=".csv" required>
+                <button type="submit" class="admin-btn">Upload and Add Students</button>
+            </form>
+        </div>
+    </div>
+    <div id="bulk-add-events-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Bulk Add Events</h2>
+            <form id="bulk-add-events-form" class="modal-form">
+                <p>Upload a CSV file with event data. The file must have three columns with no header row:</p>
+                <p><strong>Column A:</strong> Event Title<br>
+                   <strong>Column B:</strong> Date (in YYYY-MM-DD format)<br>
+                   <strong>Column C:</strong> Involved Universities (comma-separated, optional)</p>
+                <p><small>Example: Oxford,Warwick</small></p>
+                <input type="file" id="csv-events-file-input" accept=".csv" required>
+                <button type="submit" class="admin-btn">Upload and Add Events</button>
+            </form>
+        </div>
+    </div>
 
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- SCRIPT RESTRUCTURED FOR STABILITY ---
-
-            // --- GLOBAL STATE & VARIABLES ---
             let allStudents = [], allShoutouts = [], allEvents = [];
             let currentUserRole = 'guest';
-            let currentCalendarDate = new Date('2025-08-01');
-            const calendarStartDate = new Date('2025-08-01');
-            const calendarEndDate = new Date('2026-07-01');
+            let currentCalendarDate = new Date();
             let uniChart = null;
-            
-            // --- ALL FUNCTION DEFINITIONS (DEFINED FIRST TO PREVENT CRASHES) ---
-            
-            // Helper function to find a student by their ID
+            let shoutoutRecipients = [];
+
             const getStudentById = (id) => allStudents.find(s => s.id === id);
 
             function setupPermissions() {
-                const eventBtn = document.getElementById('add-event-btn');
-                const shoutoutBtn = document.getElementById('add-shoutout-btn');
-                const studentBtn = document.getElementById('add-student-btn');
-                [eventBtn, shoutoutBtn, studentBtn].forEach(btn => btn.classList.add('hidden'));
-
+                document.querySelectorAll('.admin-tools').forEach(el => el.classList.add('hidden'));
                 if (currentUserRole === 'admin') {
-                    [eventBtn, shoutoutBtn, studentBtn].forEach(btn => btn.classList.remove('hidden'));
+                    document.querySelectorAll('.admin-tools').forEach(el => el.classList.remove('hidden'));
                 } else if (currentUserRole === 'teacher') {
-                    shoutoutBtn.classList.remove('hidden');
+                    const shoutoutBtn = document.getElementById('add-shoutout-btn');
+                    if (shoutoutBtn) {
+                        const toolContainer = shoutoutBtn.closest('.admin-tools');
+                        if (toolContainer) toolContainer.classList.remove('hidden');
+                    }
                 }
             }
             
@@ -318,10 +554,7 @@
                 const leaderboardEl = document.getElementById('leaderboard');
                 if (!leaderboardEl) return;
                 leaderboardEl.innerHTML = '';
-                const shoutoutCounts = allStudents.map(student => ({
-                    ...student,
-                    count: allShoutouts.filter(s => s.studentId === student.id).length
-                }));
+                const shoutoutCounts = allStudents.map(student => ({...student, count: allShoutouts.filter(s => s.studentId === student.id).length}));
                 const top3 = shoutoutCounts.sort((a, b) => b.count - a.count).slice(0, 3);
                 top3.forEach((student, index) => {
                     if (student.count > 0) {
@@ -335,10 +568,21 @@
                 if (!feedEl) return;
                 feedEl.innerHTML = '';
                 const sortedShoutouts = [...allShoutouts].sort((a, b) => b.timestamp - a.timestamp);
-                sortedShoutouts.forEach(shoutout => {
+                sortedShoutouts.forEach((shoutout) => {
                     const student = getStudentById(shoutout.studentId);
                     if (!student) return;
-                    feedEl.innerHTML += `<div class="shoutout-card border-${student.uni}"><div class="shoutout-card-header"><span class="student-name">${student.name}</span><span class="student-uni">${student.uni}</span></div><p>${shoutout.reason}</p><div class="shoutout-card-footer">- ${shoutout.teacher} on ${shoutout.timestamp.toLocaleDateString()}</div></div>`;
+                    const timestampFormat = (currentUserRole === 'admin') ? 
+                        shoutout.timestamp.toLocaleString() : 
+                        shoutout.timestamp.toLocaleDateString();
+                    const cardHTML = `<div class="shoutout-card border-${student.uni}">
+                        <div class="shoutout-card-header">
+                           <span class="student-name">${student.name}</span>
+                           <span class="student-uni">${student.uni}</span>
+                        </div>
+                        <p class="reason">${shoutout.reason}</p>
+                        <div class="shoutout-card-footer">- ${shoutout.teacher} on ${timestampFormat}</div>
+                    </div>`;
+                    feedEl.innerHTML += cardHTML;
                 });
             }
 
@@ -353,47 +597,110 @@
                         uniTotals[student.uni]++;
                     }
                 });
-                if (uniChart) uniChart.destroy();
+                if (uniChart) {
+                    uniChart.data.datasets[0].data = Object.values(uniTotals);
+                    uniChart.update();
+                    return;
+                }
                 const colors = [getComputedStyle(document.body).getPropertyValue('--edinburgh'), getComputedStyle(document.body).getPropertyValue('--manchester'), getComputedStyle(document.body).getPropertyValue('--oxford'), getComputedStyle(document.body).getPropertyValue('--warwick')];
-                uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: Object.values(uniTotals), backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white', stepSize: 1 }, beginAtZero: true } }, plugins: { legend: { display: false } } } });
+                uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: Object.values(uniTotals), backgroundColor: colors }] }, options: { animation: { duration: 1000 }, responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white', stepSize: 1 }, beginAtZero: true } }, plugins: { legend: { display: false } } } });
             }
 
             function renderCalendar() {
-                const gridEl = document.getElementById('calendar-grid');
-                const monthLabelEl = document.getElementById('month-year-label');
-                if (!gridEl || !monthLabelEl) return;
-                gridEl.innerHTML = '';
-                const year = currentCalendarDate.getFullYear();
-                const month = currentCalendarDate.getMonth();
-                monthLabelEl.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const firstDayIndex = new Date(year, month, 1).getDay();
-                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => { gridEl.innerHTML += `<div class="day-name">${day}</div>`; });
-                for (let i = 0; i < firstDayIndex; i++) { gridEl.innerHTML += `<div></div>`; }
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                    const hasEvent = allEvents.some(e => e.date === currentDateStr);
-                    gridEl.innerHTML += `<div class="day">${i}${hasEvent ? '<div class="event-dot"></div>' : ''}</div>`;
+                const weekViewEl = document.getElementById('week-view');
+                const weekLabelEl = document.getElementById('week-range-label');
+                if (!weekViewEl || !weekLabelEl) return;
+                weekViewEl.innerHTML = '';
+                const dayOfWeek = currentCalendarDate.getDay();
+                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
+                const startOfWeek = new Date(currentCalendarDate);
+                startOfWeek.setDate(startOfWeek.getDate() - diff);
+                startOfWeek.setHours(0, 0, 0, 0);
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                const startOptions = { month: 'short', day: 'numeric' };
+                const endOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+                weekLabelEl.textContent = `${startOfWeek.toLocaleDateString('en-US', startOptions)} - ${endOfWeek.toLocaleDateString('en-US', endOptions)}`;
+                for (let i = 0; i < 7; i++) {
+                    const day = new Date(startOfWeek);
+                    day.setDate(startOfWeek.getDate() + i);
+                    const dayName = day.toLocaleDateString('en-US', { weekday: 'long' });
+                    const dayDate = day.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                    const dateStringForMatch = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+                    const dayEvents = allEvents.filter(e => e.date === dateStringForMatch);
+                    let eventsHTML = '<p class="no-events">No events scheduled.</p>';
+                    if (dayEvents.length > 0) {
+                        eventsHTML = '<ul class="events-list">';
+                        dayEvents.forEach(event => {
+                            let borderStyle = 'border-color: rgba(255,255,255,0.2);';
+                            let uniListHTML = '';
+                            if (event.unis && event.unis.length > 0) {
+                                const colorVars = event.unis.map(uni => `var(--${uni.toLowerCase()})`);
+                                if (colorVars.length > 1) {
+                                    borderStyle = `border-image: linear-gradient(to bottom, ${colorVars.join(', ')}) 1;`;
+                                } else {
+                                    borderStyle = `border-color: ${colorVars[0]};`;
+                                }
+                                uniListHTML = `<span class="event-unis">Involves: ${event.unis.join(', ')}</span>`;
+                            }
+                            eventsHTML += `<li style="${borderStyle}">${event.title}${uniListHTML}</li>`;
+                        });
+                        eventsHTML += '</ul>';
+                    }
+                    weekViewEl.innerHTML += `<div class="week-day"><div class="day-header">${dayName}<span class="date">${dayDate}</span></div>${eventsHTML}</div>`;
                 }
-                document.getElementById('prev-month-btn').disabled = currentCalendarDate <= calendarStartDate;
-                document.getElementById('next-month-btn').disabled = currentCalendarDate >= calendarEndDate;
             }
 
-            function populateStudentDropdown() {
-                const selectEl = document.getElementById('student-select');
-                if (!selectEl) return;
-                selectEl.innerHTML = '<option value="" disabled selected>Select a student...</option>';
-                const sortedStudents = [...allStudents].sort((a, b) => a.name.localeCompare(b.name));
-                sortedStudents.forEach(student => {
-                    selectEl.innerHTML += `<option value="${student.id}">${student.name} (${student.uni})</option>`;
+            function renderRecipientTags() {
+                const container = document.getElementById('recipient-container');
+                container.querySelectorAll('.recipient-tag').forEach(tag => tag.remove());
+                shoutoutRecipients.forEach(recipient => {
+                    const tag = document.createElement('div');
+                    tag.className = 'recipient-tag';
+                    let name = recipient.type === 'student' ? recipient.name : `All ${recipient.name} Students`;
+                    tag.innerHTML = `<span>${name}</span><span class="remove-tag" data-id="${recipient.id || recipient.name}" data-type="${recipient.type}">&times;</span>`;
+                    container.insertBefore(tag, document.getElementById('recipient-input'));
                 });
             }
 
-            // --- SETUP UI AND EVENT LISTENERS ---
+            function updateAutocomplete(query) {
+                const resultsContainer = document.getElementById('autocomplete-results');
+                resultsContainer.innerHTML = '';
+                if (!query) {
+                    resultsContainer.style.display = 'none';
+                    return;
+                }
+                const lowerCaseQuery = query.toLowerCase();
+                const matchingStudents = allStudents.filter(student => student.name.toLowerCase().includes(lowerCaseQuery) && !shoutoutRecipients.some(r => r.type === 'student' && r.id === student.id)).slice(0, 5);
+                const universities = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
+                const matchingUnis = universities.filter(uni => uni.toLowerCase().includes(lowerCaseQuery) && !shoutoutRecipients.some(r => r.type === 'uni' && r.name === uni));
+                matchingUnis.forEach(uni => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item uni-select';
+                    item.textContent = `All ${uni} Students`;
+                    item.dataset.type = 'uni';
+                    item.dataset.name = uni;
+                    resultsContainer.appendChild(item);
+                });
+                matchingStudents.forEach(student => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.innerHTML = `${student.name} <span class="uni-name">(${student.uni})</span>`;
+                    item.dataset.type = 'student';
+                    item.dataset.id = student.id;
+                    item.dataset.name = student.name;
+                    resultsContainer.appendChild(item);
+                });
+                resultsContainer.style.display = (matchingStudents.length > 0 || matchingUnis.length > 0) ? 'block' : 'none';
+            }
+
             const mainLoginBtn = document.getElementById('login-btn');
             const loginModal = document.getElementById('login-modal');
             const addShoutoutModal = document.getElementById('add-shoutout-modal');
             const addStudentModal = document.getElementById('add-student-modal');
+            const addEventModal = document.getElementById('add-event-modal');
+            const bulkAddModal = document.getElementById('bulk-add-modal');
+            const bulkAddEventsModal = document.getElementById('bulk-add-events-modal');
 
             mainLoginBtn.addEventListener('click', () => { loginModal.style.display = 'block'; });
             loginModal.querySelector('.close-btn').addEventListener('click', () => loginModal.style.display = 'none');
@@ -408,50 +715,189 @@
                 loginModal.style.display = 'none';
             });
 
-            addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = 'none');
+            addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = "none");
             document.getElementById('add-shoutout-btn').addEventListener('click', () => {
+                shoutoutRecipients = [];
+                renderRecipientTags();
                 document.getElementById('shoutout-form').reset();
                 document.getElementById('timestamp').value = new Date().toLocaleString();
                 addShoutoutModal.style.display = "block";
             });
             
-            addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = 'none');
+            addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = "none");
             document.getElementById('add-student-btn').addEventListener('click', () => {
                 document.getElementById('add-student-form').reset();
                 addStudentModal.style.display = "block";
             });
             
-            document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
-            document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
+            addEventModal.querySelector('.close-btn').addEventListener('click', () => addEventModal.style.display = "none");
+            document.getElementById('add-event-btn').addEventListener('click', () => {
+                document.getElementById('add-event-form').reset();
+                addEventModal.style.display = "block";
+            });
+
+            bulkAddModal.querySelector('.close-btn').addEventListener('click', () => bulkAddModal.style.display = 'none');
+            document.getElementById('bulk-add-btn').addEventListener('click', () => {
+                document.getElementById('bulk-add-form').reset();
+                bulkAddModal.style.display = 'block';
+            });
+            
+            bulkAddEventsModal.querySelector('.close-btn').addEventListener('click', () => bulkAddEventsModal.style.display = 'none');
+            document.getElementById('bulk-add-events-btn').addEventListener('click', () => {
+                document.getElementById('bulk-add-events-form').reset();
+                bulkAddEventsModal.style.display = 'block';
+            });
+            
+            document.getElementById('manage-data-btn').addEventListener('click', () => {
+                alert('Delete functionality is a major feature that can be built next!');
+            });
+
+            const recipientInput = document.getElementById('recipient-input');
+            const recipientContainer = document.getElementById('recipient-container');
+            const autocompleteResults = document.getElementById('autocomplete-results');
+
+            recipientContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-tag')) {
+                    const { id, type } = e.target.dataset;
+                    shoutoutRecipients = shoutoutRecipients.filter(r => (r.id || r.name) !== id);
+                    renderRecipientTags();
+                } else {
+                    recipientInput.focus();
+                }
+            });
+            recipientInput.addEventListener('keyup', () => { updateAutocomplete(recipientInput.value); });
+            autocompleteResults.addEventListener('click', (e) => {
+                const item = e.target.closest('.autocomplete-item');
+                if (!item) return;
+                const { type, id, name } = item.dataset;
+                shoutoutRecipients.push(type === 'student' ? { type, id, name } : { type, name });
+                recipientInput.value = '';
+                updateAutocomplete('');
+                renderRecipientTags();
+                recipientInput.focus();
+            });
+            
+            document.getElementById('prev-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() - 7); renderCalendar(); });
+            document.getElementById('next-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() + 7); renderCalendar(); });
+            document.getElementById('this-week-btn').addEventListener('click', () => { currentCalendarDate = new Date(); renderCalendar(); });
 
             window.addEventListener('click', (event) => {
                 if (event.target == addShoutoutModal) addShoutoutModal.style.display = "none";
                 if (event.target == loginModal) loginModal.style.display = "none";
                 if (event.target == addStudentModal) addStudentModal.style.display = "none";
+                if (event.target == addEventModal) addEventModal.style.display = "none";
+                if (event.target == bulkAddModal) bulkAddModal.style.display = "none";
+                if (event.target == bulkAddEventsModal) bulkAddEventsModal.style.display = "none";
             });
 
             document.getElementById('shoutout-form').addEventListener('submit', (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.target);
-                const shoutoutData = { studentId: formData.get('student'), reason: formData.get('reason'), teacher: formData.get('initials').toUpperCase(), timestamp: firebase.database.ServerValue.TIMESTAMP };
-                firebase.database().ref('shoutouts').push(shoutoutData)
-                    .then(() => { addShoutoutModal.style.display = "none"; })
-                    .catch((error) => { alert("Failed to add shoutout. Error: " + error.message); });
+                const reason = formData.get('reason');
+                const teacher = formData.get('initials').toUpperCase();
+                if (shoutoutRecipients.length === 0) {
+                    alert('Please select at least one student or university.');
+                    return;
+                }
+                let finalStudentIds = new Set();
+                shoutoutRecipients.forEach(recipient => {
+                    if (recipient.type === 'student') {
+                        finalStudentIds.add(recipient.id);
+                    } else if (recipient.type === 'uni') {
+                        allStudents.forEach(student => {
+                            if (student.uni === recipient.name) { finalStudentIds.add(student.id); }
+                        });
+                    }
+                });
+                const pushPromises = [];
+                finalStudentIds.forEach(studentId => {
+                    const shoutoutData = { studentId, reason, teacher, timestamp: firebase.database.ServerValue.TIMESTAMP };
+                    pushPromises.push(firebase.database().ref('shoutouts').push(shoutoutData));
+                });
+                Promise.all(pushPromises).then(() => { addShoutoutModal.style.display = "none"; }).catch((error) => { alert("Failed to add shoutout(s). Error: " + error.message); });
             });
 
             document.getElementById('add-student-form').addEventListener('submit', (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.target);
                 const newStudent = { name: formData.get('studentName'), uni: formData.get('uni') };
-                firebase.database().ref('students').push(newStudent)
-                    .then(() => {
-                        addStudentModal.style.display = "none";
-                        alert(`Student "${newStudent.name}" added successfully!`);
-                    })
-                    .catch((error) => { alert("FAILED TO ADD STUDENT.\n\nError: " + error.message); });
+                firebase.database().ref('students').push(newStudent).then(() => { addStudentModal.style.display = "none"; alert(`Student "${newStudent.name}" added successfully!`); }).catch((error) => { alert("FAILED TO ADD STUDENT.\n\nError: " + error.message); });
             });
             
-            // --- INITIALIZE FIREBASE AND DATA LISTENERS ---
+            document.getElementById('add-event-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const selectedUnis = [];
+                document.querySelectorAll('#event-unis-checkboxes input:checked').forEach(checkbox => {
+                    selectedUnis.push(checkbox.value);
+                });
+                const newEvent = { title: formData.get('eventTitle'), date: formData.get('eventDate'), unis: selectedUnis };
+                firebase.database().ref('events').push(newEvent).then(() => { addEventModal.style.display = "none"; alert(`Event "${newEvent.title}" added successfully!`); }).catch((error) => { alert("FAILED TO ADD EVENT.\n\nError: " + error.message); });
+            });
+
+            document.getElementById('bulk-add-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const fileInput = document.getElementById('csv-file-input');
+                if (fileInput.files.length === 0) return alert('Please select a CSV file to upload.');
+                Papa.parse(fileInput.files[0], {
+                    complete: (results) => {
+                        const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
+                        let studentsToAdd = [];
+                        let skippedRows = 0;
+                        results.data.forEach(row => {
+                            const name = row[0] ? row[0].trim() : '';
+                            const uni = row[1] ? row[1].trim() : '';
+                            if (name && uni && validUnis.includes(uni)) {
+                                studentsToAdd.push({ name, uni });
+                            } else if (name || uni) {
+                                skippedRows++;
+                            }
+                        });
+                        if(studentsToAdd.length === 0) return alert(`No valid students found to add. ${skippedRows > 0 ? skippedRows : 0} row(s) were skipped.`);
+                        const pushPromises = studentsToAdd.map(student => firebase.database().ref('students').push(student));
+                        Promise.all(pushPromises)
+                            .then(() => {
+                                bulkAddModal.style.display = 'none';
+                                alert(`Successfully added ${studentsToAdd.length} students.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
+                            })
+                            .catch(error => alert('An error occurred: ' + error.message));
+                    }
+                });
+            });
+
+            document.getElementById('bulk-add-events-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const fileInput = document.getElementById('csv-events-file-input');
+                if (fileInput.files.length === 0) return alert('Please select a CSV file.');
+                Papa.parse(fileInput.files[0], {
+                    complete: (results) => {
+                        const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
+                        let eventsToAdd = [];
+                        let skippedRows = 0;
+                        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                        results.data.forEach(row => {
+                            const title = row[0] ? row[0].trim() : '';
+                            const date = row[1] ? row[1].trim() : '';
+                            const unisRaw = row[2] ? row[2].trim() : '';
+                            if (title && date && dateRegex.test(date)) {
+                                let eventUnis = unisRaw ? unisRaw.split(',').map(u => u.trim()).filter(u => validUnis.includes(u)) : [];
+                                eventsToAdd.push({ title, date, unis: eventUnis });
+                            } else if (title || date || unisRaw) {
+                                skippedRows++;
+                            }
+                        });
+                        if(eventsToAdd.length === 0) return alert(`No valid events found. ${skippedRows > 0 ? skippedRows : 0} row(s) were skipped.`);
+                        const pushPromises = eventsToAdd.map(event => firebase.database().ref('events').push(event));
+                        Promise.all(pushPromises)
+                            .then(() => {
+                                bulkAddEventsModal.style.display = 'none';
+                                alert(`Successfully added ${eventsToAdd.length} events.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
+                            })
+                            .catch(error => alert('An error occurred: ' + error.message));
+                    }
+                });
+            });
+            
             try {
                 const firebaseConfig = {
                     apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
@@ -465,7 +911,7 @@
                 firebase.initializeApp(firebaseConfig);
                 const database = firebase.database();
 
-                database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); populateStudentDropdown(); renderShoutoutUI(); });
+                database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderShoutoutUI(); });
                 database.ref('shoutouts').on('value', (snapshot) => { const data = snapshot.val() || {}; allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); renderShoutoutUI(); });
                 database.ref('events').on('value', (snapshot) => { const data = snapshot.val() || {}; allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderCalendar(); });
             } catch (error) {
@@ -473,9 +919,9 @@
                 alert("Could not connect to the database. Check console for details.");
             }
 
-            // --- INITIAL PAGE RENDER ---
             renderCalendar();
             setupPermissions();
+            flatpickr("#event-date-input", { dateFormat: "Y-m-d", altInput: true, altFormat: "F j, Y", });
         });
     </script>
 </body>
