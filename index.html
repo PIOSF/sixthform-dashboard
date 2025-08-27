@@ -174,7 +174,7 @@
         .modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #555; background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box; }
         .modal-form button { width: 100%; margin-top: 20px; }
 
-        /* --- NEW Login Modal Styling --- */
+        /* --- Login Modal Styling --- */
         #login-role-selector { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
         .role-btn { padding: 15px; border-radius: 5px; border: none; font-size: 1.2em; color: white; cursor: pointer; transition: transform 0.2s; }
         .role-btn:hover { transform: scale(1.02); }
@@ -257,6 +257,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- FIREBASE CONFIGURATION ---
+            // ❗ IMPORTANT: Replace this with your actual Firebase project configuration.
             const firebaseConfig = {
                 apiKey: "YOUR_API_KEY",
                 authDomain: "YOUR_AUTH_DOMAIN",
@@ -267,71 +269,162 @@
                 appId: "YOUR_APP_ID"
             };
 
+            // --- INITIALIZE FIREBASE ---
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
 
+            // --- GLOBAL STATE & VARIABLES ---
             let allStudents = [], allShoutouts = [], allEvents = [];
             let currentUserRole = 'guest';
-            let currentCalendarDate = new Date('2025-09-01');
-            const calendarStartDate = new Date('2025-09-01');
+            let currentCalendarDate = new Date('2025-08-01'); // Set to August to show current month
+            const calendarStartDate = new Date('2025-08-01');
             const calendarEndDate = new Date('2026-07-01');
             let uniChart = null;
+            
+            // --- DATABASE LISTENERS ---
+            database.ref('students').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                populateStudentDropdown();
+                renderShoutoutUI();
+            });
 
-            // --- Database Listeners and Rendering Functions (Unchanged) ---
-            database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); populateStudentDropdown(); renderShoutoutUI(); });
-            database.ref('shoutouts').on('value', (snapshot) => { const data = snapshot.val() || {}; allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); renderShoutoutUI(); });
-            database.ref('events').on('value', (snapshot) => { const data = snapshot.val() || {}; allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderCalendar(); });
+            database.ref('shoutouts').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) }));
+                renderShoutoutUI();
+            });
+
+            database.ref('events').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                renderCalendar();
+            });
+
+            // --- UTILITY & RENDERING FUNCTIONS ---
             const getStudentById = (id) => allStudents.find(s => s.id === id);
-            function renderShoutoutUI() { renderLeaderboard(); renderShoutoutFeed(); renderUniversityChart(); }
-            function renderLeaderboard() { const el = document.getElementById('leaderboard'); if(!el) return; el.innerHTML = ''; const counts = allStudents.map(s => ({...s, count: allShoutouts.filter(sh => sh.studentId === s.id).length})).sort((a,b) => b.count - a.count); counts.slice(0,3).forEach((s, i) => { if(s.count > 0) el.innerHTML += `<div class="leaderboard-entry"><span>#${i+1} ${s.name} (${s.uni})</span><span>${s.count} Shoutouts</span></div>`; }); }
-            function renderShoutoutFeed() { const el = document.getElementById('shoutout-feed'); if(!el) return; el.innerHTML = ''; [...allShoutouts].sort((a,b) => b.timestamp - a.timestamp).forEach(sh => { const s = getStudentById(sh.studentId); if(!s) return; el.innerHTML += `<div class="shoutout-card border-${s.uni}"><div class="shoutout-card-header"><span class="student-name">${s.name}</span><span class="student-uni">${s.uni}</span></div><p>${sh.reason}</p><div class="shoutout-card-footer">- ${sh.teacher} on ${sh.timestamp.toLocaleString()}</div></div>`; }); }
-            function renderUniversityChart() { const el = document.getElementById('uni-chart'); if(!el) return; const ctx = el.getContext('2d'); const totals = { Edinburgh: 0, Manchester: 0, Oxford: 0, Warwick: 0 }; allShoutouts.forEach(sh => { const s = getStudentById(sh.studentId); if(s && totals.hasOwnProperty(s.uni)) totals[s.uni]++; }); if (uniChart) uniChart.destroy(); uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: [getComputedStyle(document.body).getPropertyValue('--edinburgh'), getComputedStyle(document.body).getPropertyValue('--manchester'), getComputedStyle(document.body).getPropertyValue('--oxford'), getComputedStyle(document.body).getPropertyValue('--warwick')] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { ticks: { color: 'white', stepSize: 1 } }, y: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } } }); }
-            function renderCalendar() { const gridEl=document.getElementById('calendar-grid'); if(!gridEl) return; const monthLabelEl=document.getElementById('month-year-label'); gridEl.innerHTML=''; const year=currentCalendarDate.getFullYear(), month=currentCalendarDate.getMonth(); monthLabelEl.textContent=`${currentCalendarDate.toLocaleString('default',{month:'long'})} ${year}`; const daysInMonth=new Date(year,month+1,0).getDate(), firstDayIndex=new Date(year,month,1).getDay(); ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day=>{const e=document.createElement('div'); e.className='day-name',e.textContent=day,gridEl.appendChild(e)}); for(let i=0;i<firstDayIndex;i++)gridEl.appendChild(document.createElement('div')); for(let i=1;i<=daysInMonth;i++){const dayEl=document.createElement('div'); dayEl.className='day',dayEl.textContent=i; const currentDateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(allEvents.some(e=>e.date===currentDateStr)){const dot=document.createElement('div'); dot.className='event-dot',dayEl.appendChild(dot)} gridEl.appendChild(dayEl)} document.getElementById('prev-month-btn').disabled=currentCalendarDate<=calendarStartDate, document.getElementById('next-month-btn').disabled=currentCalendarDate>=calendarEndDate; }
-            function populateStudentDropdown() { const el = document.getElementById('student-select'); if(!el) return; el.innerHTML = '<option value="" disabled selected>Select a student...</option>'; [...allStudents].sort((a,b) => a.name.localeCompare(b.name)).forEach(s => el.innerHTML += `<option value="${s.id}">${s.name} (${s.uni})</option>`); }
 
-            function setupPermissions() {
-                const btns = [document.getElementById('add-event-btn'), document.getElementById('add-shoutout-btn'), document.getElementById('add-student-btn')];
-                btns.forEach(b => b.classList.add('hidden'));
-                if (currentUserRole === 'admin') btns.forEach(b => b.classList.remove('hidden'));
-                else if (currentUserRole === 'teacher') btns[1].classList.remove('hidden');
+            function renderShoutoutUI() {
+                renderLeaderboard();
+                renderShoutoutFeed();
+                renderUniversityChart();
             }
             
-            // --- UPDATED Event Listeners ---
+            function renderLeaderboard() {
+                const leaderboardEl = document.getElementById('leaderboard');
+                if (!leaderboardEl) return;
+                leaderboardEl.innerHTML = '';
+                const shoutoutCounts = allStudents.map(student => ({
+                    ...student,
+                    count: allShoutouts.filter(s => s.studentId === student.id).length
+                }));
+                const top3 = shoutoutCounts.sort((a, b) => b.count - a.count).slice(0, 3);
+                top3.forEach((student, index) => {
+                    if (student.count > 0) {
+                        leaderboardEl.innerHTML += `<div class="leaderboard-entry"><span>#${index + 1} ${student.name} (${student.uni})</span><span>${student.count} Shoutouts</span></div>`;
+                    }
+                });
+            }
+
+            function renderShoutoutFeed() {
+                const feedEl = document.getElementById('shoutout-feed');
+                if (!feedEl) return;
+                feedEl.innerHTML = '';
+                const sortedShoutouts = [...allShoutouts].sort((a, b) => b.timestamp - a.timestamp);
+                sortedShoutouts.forEach(shoutout => {
+                    const student = getStudentById(shoutout.studentId);
+                    if (!student) return;
+                    feedEl.innerHTML += `<div class="shoutout-card border-${student.uni}"><div class="shoutout-card-header"><span class="student-name">${student.name}</span><span class="student-uni">${student.uni}</span></div><p>${shoutout.reason}</p><div class="shoutout-card-footer">- ${shoutout.teacher} on ${shoutout.timestamp.toLocaleDateString()}</div></div>`;
+                });
+            }
+
+            function renderUniversityChart() {
+                const chartEl = document.getElementById('uni-chart');
+                if (!chartEl) return;
+                const ctx = chartEl.getContext('2d');
+                const uniTotals = { Edinburgh: 0, Manchester: 0, Oxford: 0, Warwick: 0 };
+                allShoutouts.forEach(shoutout => {
+                    const student = getStudentById(shoutout.studentId);
+                    if (student && uniTotals.hasOwnProperty(student.uni)) {
+                        uniTotals[student.uni]++;
+                    }
+                });
+                if (uniChart) uniChart.destroy();
+                const colors = [
+                    getComputedStyle(document.body).getPropertyValue('--edinburgh'),
+                    getComputedStyle(document.body).getPropertyValue('--manchester'),
+                    getComputedStyle(document.body).getPropertyValue('--oxford'),
+                    getComputedStyle(document.body).getPropertyValue('--warwick')
+                ];
+                uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: Object.values(uniTotals), backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { ticks: { color: 'white', stepSize: 1 } }, y: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } } });
+            }
+
+            function renderCalendar() {
+                const gridEl = document.getElementById('calendar-grid');
+                const monthLabelEl = document.getElementById('month-year-label');
+                if (!gridEl || !monthLabelEl) return;
+
+                gridEl.innerHTML = '';
+                const year = currentCalendarDate.getFullYear();
+                const month = currentCalendarDate.getMonth();
+                monthLabelEl.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+                
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayIndex = new Date(year, month, 1).getDay();
+
+                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+                    gridEl.innerHTML += `<div class="day-name">${day}</div>`;
+                });
+
+                for (let i = 0; i < firstDayIndex; i++) {
+                    gridEl.innerHTML += `<div></div>`;
+                }
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    const hasEvent = allEvents.some(e => e.date === currentDateStr);
+                    gridEl.innerHTML += `<div class="day">${i}${hasEvent ? '<div class="event-dot"></div>' : ''}</div>`;
+                }
+                document.getElementById('prev-month-btn').disabled = currentCalendarDate <= calendarStartDate;
+                document.getElementById('next-month-btn').disabled = currentCalendarDate >= calendarEndDate;
+            }
+
+            function populateStudentDropdown() {
+                const selectEl = document.getElementById('student-select');
+                if (!selectEl) return;
+                selectEl.innerHTML = '<option value="" disabled selected>Select a student...</option>';
+                const sortedStudents = [...allStudents].sort((a, b) => a.name.localeCompare(b.name));
+                sortedStudents.forEach(student => {
+                    selectEl.innerHTML += `<option value="${student.id}">${student.name} (${student.uni})</option>`;
+                });
+            }
+
+            function setupPermissions() {
+                const eventBtn = document.getElementById('add-event-btn');
+                const shoutoutBtn = document.getElementById('add-shoutout-btn');
+                const studentBtn = document.getElementById('add-student-btn');
+
+                [eventBtn, shoutoutBtn, studentBtn].forEach(btn => btn.classList.add('hidden'));
+
+                if (currentUserRole === 'admin') {
+                    [eventBtn, shoutoutBtn, studentBtn].forEach(btn => btn.classList.remove('hidden'));
+                } else if (currentUserRole === 'teacher') {
+                    shoutoutBtn.classList.remove('hidden');
+                }
+            }
             
-            // Modal Handling for "Add Shoutout"
+            // --- EVENT LISTENERS ---
+
+            // Modal: Add Shoutout
             const addShoutoutModal = document.getElementById('add-shoutout-modal');
-            document.getElementById('add-shoutout-btn').onclick = () => { document.getElementById('shoutout-form').reset(); document.getElementById('timestamp').value = new Date().toLocaleString(); addShoutoutModal.style.display = "block"; };
-            addShoutoutModal.querySelector('.close-btn').onclick = () => { addShoutoutModal.style.display = "none"; };
-            
-            // NEW Modal Handling for Login
-            const loginModal = document.getElementById('login-modal');
-            const loginBtn = document.getElementById('login-btn');
-            loginBtn.onclick = () => { loginModal.style.display = 'block'; };
-            loginModal.querySelector('.close-btn').onclick = () => { loginModal.style.display = 'none'; };
-
-            // Close modals if clicking outside the content
-            window.onclick = (event) => {
-                if (event.target == addShoutoutModal) addShoutoutModal.style.display = "none";
-                if (event.target == loginModal) loginModal.style.display = "none";
+            document.getElementById('add-shoutout-btn').onclick = () => {
+                document.getElementById('shoutout-form').reset();
+                document.getElementById('timestamp').value = new Date().toLocaleString();
+                addShoutoutModal.style.display = "block";
             };
-            
-            // NEW Role Selector Logic
-            document.getElementById('login-role-selector').addEventListener('click', (e) => {
-                if (e.target.tagName !== 'BUTTON') return;
-                
-                if (e.target.id === 'role-admin') currentUserRole = 'admin';
-                else if (e.target.id === 'role-teacher') currentUserRole = 'teacher';
-                else if (e.target.id === 'role-guest') currentUserRole = 'guest';
-
-                setupPermissions();
-                
-                loginBtn.textContent = currentUserRole === 'guest' ? 'Login' : `Logout (${currentUserRole})`;
-                loginModal.style.display = 'none';
-            });
-            
-            // Other Listeners
-            document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
-            document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
+            addShoutoutModal.querySelector('.close-btn').onclick = () => {
+                addShoutoutModal.style.display = "none";
+            };
             document.getElementById('shoutout-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
@@ -341,7 +434,37 @@
                 }).then(() => { addShoutoutModal.style.display = "none"; }).catch(console.error);
             });
 
-            // --- Initial Load ---
+            // Modal: Login (Role Selector)
+            const loginModal = document.getElementById('login-modal');
+            const mainLoginBtn = document.getElementById('login-btn');
+            mainLoginBtn.onclick = () => {
+                loginModal.style.display = 'block';
+            };
+            loginModal.querySelector('.close-btn').onclick = () => {
+                loginModal.style.display = 'none';
+            };
+            document.getElementById('login-role-selector').addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') return;
+                
+                const roleId = e.target.id;
+                if (roleId === 'role-admin') currentUserRole = 'admin';
+                else if (roleId === 'role-teacher') currentUserRole = 'teacher';
+                else if (roleId === 'role-guest') currentUserRole = 'guest';
+
+                setupPermissions();
+                mainLoginBtn.textContent = currentUserRole === 'guest' ? 'Login' : `Logout (${currentUserRole})`;
+                loginModal.style.display = 'none';
+            });
+
+            // General Listeners
+            document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
+            document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
+            window.onclick = (event) => {
+                if (event.target == addShoutoutModal) addShoutoutModal.style.display = "none";
+                if (event.target == loginModal) loginModal.style.display = "none";
+            };
+
+            // --- INITIAL PAGE LOAD ---
             renderCalendar();
             setupPermissions();
         });
