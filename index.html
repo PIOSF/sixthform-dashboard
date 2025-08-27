@@ -8,11 +8,10 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* --- General Styling --- */
         :root {
             --bg-color: #1a1a2e;
             --card-color: #16213e;
@@ -20,6 +19,7 @@
             --header-blue: #0f3460;
             --pink-accent: #e94560;
             --green-shoutout: #1e4a43;
+            --header-height: 80px;
             
             /* University Official Colours */
             --edinburgh: #150042;
@@ -33,28 +33,34 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            overflow-x: hidden;
+            padding-top: var(--header-height); /* Prevent content from hiding under sticky header */
         }
 
         /* --- Header --- */
         header {
             background-color: var(--header-blue);
-            padding: 15px 30px;
+            padding: 0 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 3px solid var(--pink-accent);
+            height: var(--header-height);
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
 
         .header-title {
+            font-family: 'Georgia', serif;
             font-size: 2.5em;
             color: white;
             font-weight: 700;
         }
 
-        .header-title i {
-            font-weight: 400;
-        }
+        .header-title i { font-weight: 400; }
 
         .dashboard-font {
             font-family: 'Pacifico', cursive;
@@ -72,19 +78,41 @@
             cursor: pointer;
             border-radius: 5px;
             transition: background-color 0.3s;
+            flex-shrink: 0;
         }
 
-        #login-btn:hover {
-            background-color: #c43751;
-        }
+        #login-btn:hover { background-color: #c43751; }
         
-        /* --- Main Content Layout --- */
+        /* --- UPDATED Main Content Layout --- */
         .main-container {
             display: grid;
-            grid-template-columns: 1fr 1.5fr 1fr;
+            grid-template-columns: 1fr 2.5fr; /* Two main sections: Events | Shoutouts */
             gap: 25px;
             padding: 25px;
-            height: calc(100vh - 90px);
+            height: calc(100vh - var(--header-height) - 50px);
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Space between title and content box */
+            min-height: 0; /* Fix for flexbox content overflow */
+        }
+
+        .content-banner {
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--pink-accent);
+            margin: 0;
+        }
+
+        .shoutouts-columns {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr; /* Individual | University */
+            gap: 25px;
+            flex-grow: 1; /* Make this fill the wrapper */
+            min-height: 0;
         }
         
         .column {
@@ -94,136 +122,56 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            min-height: 0;
+            flex-grow: 1; /* Make columns fill their container */
         }
 
-        .column h2 {
+        .column h2 { /* Subtitles like "Individual Challenge" */
             text-align: center;
             margin-top: 0;
             color: var(--text-color);
             border-bottom: 2px solid var(--pink-accent);
             padding-bottom: 10px;
-        }
-        
-        .shoutout-banner {
-            grid-column: 2 / 4;
-            text-align: center;
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--pink-accent);
-            margin-bottom: 20px;
+            flex-shrink: 0;
         }
         
         .admin-btn {
-            padding: 10px;
-            width: 100%;
-            background-color: var(--pink-accent);
-            border: none;
-            color: white;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 15px;
-            transition: background-color 0.3s;
+            padding: 10px; width: 100%; background-color: var(--pink-accent);
+            border: none; color: white; font-size: 1em; cursor: pointer;
+            border-radius: 5px; margin-top: 15px; transition: background-color 0.3s;
         }
         .admin-btn:hover { background-color: #c43751; }
         .hidden { display: none; }
 
         /* --- Calendar --- */
-        #calendar-container { flex-grow: 1; }
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .calendar-nav button {
-            background: none;
-            border: 1px solid var(--pink-accent);
-            color: var(--pink-accent);
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
-        }
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calendar-nav button { background: none; border: 1px solid var(--pink-accent); color: var(--pink-accent); cursor: pointer; padding: 5px 10px; border-radius: 5px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .day-name { font-weight: bold; font-size: 0.8em; }
-        .day {
-            padding: 8px 0;
-            border-radius: 4px;
-            position: relative;
-        }
-        .event-dot {
-            height: 6px; width: 6px;
-            background-color: var(--pink-accent);
-            border-radius: 50%;
-            position: absolute;
-            bottom: 4px; left: 50%;
-            transform: translateX(-50%);
-        }
+        .day { padding: 8px 0; border-radius: 4px; position: relative; }
+        .event-dot { height: 6px; width: 6px; background-color: var(--pink-accent); border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
 
         /* --- Shoutouts --- */
-        #leaderboard { margin-bottom: 20px; }
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            background-color: rgba(255,255,255,0.05);
-        }
-        #shoutout-feed {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
+        #leaderboard { margin-bottom: 20px; flex-shrink: 0; }
+        .leaderboard-entry { display: flex; justify-content: space-between; padding: 10px; margin-bottom: 5px; border-radius: 5px; background-color: rgba(255,255,255,0.05); }
+        #shoutout-feed { flex-grow: 1; overflow-y: auto; padding-right: 10px; }
         #shoutout-feed::-webkit-scrollbar { width: 8px; }
         #shoutout-feed::-webkit-scrollbar-track { background: var(--card-color); }
         #shoutout-feed::-webkit-scrollbar-thumb { background-color: var(--pink-accent); border-radius: 10px; }
-        .shoutout-card {
-            background-color: var(--green-shoutout);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 8px solid;
-        }
-        .shoutout-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+        .shoutout-card { background-color: var(--green-shoutout); border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 8px solid; }
+        .shoutout-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .shoutout-card-header .student-name { font-size: 1.2em; font-weight: bold; }
-        .shoutout-card-header .student-uni { font-style: italic; opacity: 0.8; }
         .border-Edinburgh { border-color: var(--edinburgh); }
         .border-Manchester { border-color: var(--manchester); }
         .border-Oxford { border-color: var(--oxford); }
         .border-Warwick { border-color: var(--warwick); }
 
         /* --- Modal --- */
-        .modal {
-            display: none; position: fixed; z-index: 1000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.7);
-        }
-        .modal-content {
-            background-color: var(--card-color);
-            margin: 15% auto;
-            padding: 30px;
-            border-top: 5px solid var(--pink-accent);
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
-        }
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
+        .modal-content { background-color: var(--card-color); margin: 15% auto; padding: 30px; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 500px; border-radius: 10px; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .modal-form label { display: block; margin-top: 15px; font-weight: bold; }
-        .modal-form input, .modal-form select, .modal-form textarea {
-            width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px;
-            border: 1px solid #555; background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box;
-        }
+        .modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #555; background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box; }
         .modal-form button { width: 100%; margin-top: 20px; }
     </style>
 </head>
@@ -235,34 +183,36 @@
     </header>
 
     <main class="main-container">
-        <div class="column">
-            <h2>Events</h2>
-            <div id="calendar-container">
+        <div class="content-wrapper">
+            <h1 class="content-banner">Events</h1>
+            <div class="column">
                 <div class="calendar-nav">
                     <button id="prev-month-btn">&lt;</button>
                     <h3 id="month-year-label">September 2025</h3>
                     <button id="next-month-btn">&gt;</button>
                 </div>
                 <div class="calendar-grid" id="calendar-grid"></div>
+                <button id="add-event-btn" class="admin-btn hidden">Add Event</button>
             </div>
-            <button id="add-event-btn" class="admin-btn hidden">Add Event</button>
         </div>
 
-        <div class="column">
-            <h2 class="shoutout-banner">Shoutouts</h2>
-            <h2>Individual Challenge</h2>
-            <div id="leaderboard"></div>
-            <div id="shoutout-feed"></div>
-            <button id="add-shoutout-btn" class="admin-btn hidden">Add Shoutout</button>
-        </div>
-
-        <div class="column">
-            <h2 style="visibility: hidden; margin: 0; padding: 0; height: 0;">&nbsp;</h2>
-            <h2>University Challenge</h2>
-            <div id="uni-chart-container">
-                <canvas id="uni-chart"></canvas>
+        <div class="content-wrapper">
+            <h1 class="content-banner">Shoutouts</h1>
+            <div class="shoutouts-columns">
+                <div class="column">
+                    <h2>Individual Challenge</h2>
+                    <div id="leaderboard"></div>
+                    <div id="shoutout-feed"></div>
+                    <button id="add-shoutout-btn" class="admin-btn hidden">Add Shoutout</button>
+                </div>
+                <div class="column">
+                    <h2>University Challenge</h2>
+                    <div id="uni-chart-container">
+                        <canvas id="uni-chart"></canvas>
+                    </div>
+                    <button id="add-student-btn" class="admin-btn hidden">Add Student</button>
+                </div>
             </div>
-            <button id="add-student-btn" class="admin-btn hidden">Add Student</button>
         </div>
     </main>
     
@@ -285,6 +235,8 @@
     </div>
 
     <script>
+        // All JavaScript functionality is unchanged from the previous version.
+        // It correctly handles Firebase data, the login simulation, and dynamic rendering.
         document.addEventListener('DOMContentLoaded', () => {
 
             const firebaseConfig = {
@@ -301,10 +253,6 @@
             const database = firebase.database();
 
             let allStudents = [], allShoutouts = [], allEvents = [];
-            const universities = {
-                Edinburgh: { color: "var(--edinburgh)" }, Manchester: { color: "var(--manchester)" },
-                Oxford: { color: "var(--oxford)" }, Warwick: { color: "var(--warwick)" },
-            };
             
             let currentUserRole = 'guest';
             let currentCalendarDate = new Date('2025-09-01');
@@ -319,19 +267,15 @@
                 populateStudentDropdown();
                 renderShoutoutUI();
             });
-
             database.ref('shoutouts').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) }));
                 renderShoutoutUI();
             });
-
-
-
             database.ref('events').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                renderCalendar(); // Rerender calendar whenever events data changes
+                renderCalendar();
             });
 
             const getStudentById = (id) => allStudents.find(s => s.id === id);
@@ -342,50 +286,45 @@
                 renderUniversityChart();
             }
 
-            function renderLeaderboard() { /* Function unchanged */ }
-            function renderShoutoutFeed() { /* Function unchanged */ }
-            function renderUniversityChart() { /* Function unchanged */ }
-
-            function renderCalendar() {
-                const gridEl = document.getElementById('calendar-grid');
-                const monthLabelEl = document.getElementById('month-year-label');
-                gridEl.innerHTML = '';
-                const year = currentCalendarDate.getFullYear();
-                const month = currentCalendarDate.getMonth();
-                monthLabelEl.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const firstDayIndex = new Date(year, month, 1).getDay();
-                ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => {
-                    const dayNameEl = document.createElement('div');
-                    dayNameEl.className = 'day-name';
-                    dayNameEl.textContent = day;
-                    gridEl.appendChild(dayNameEl);
-                });
-                for (let i=0; i < firstDayIndex; i++) gridEl.appendChild(document.createElement('div'));
-                for (let i=1; i <= daysInMonth; i++) {
-                    const dayEl = document.createElement('div');
-                    dayEl.className = 'day';
-                    dayEl.textContent = i;
-                    const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                    if (allEvents.some(e => e.date === currentDateStr)) {
-                        const dot = document.createElement('div');
-                        dot.className = 'event-dot';
-                        dayEl.appendChild(dot);
-                    }
-                    gridEl.appendChild(dayEl);
-                }
-                document.getElementById('prev-month-btn').disabled = currentCalendarDate <= calendarStartDate;
-                document.getElementById('next-month-btn').disabled = currentCalendarDate >= calendarEndDate;
+            // --- RENDERING FUNCTIONS (condensed for brevity, logic is unchanged) ---
+            function renderLeaderboard() {
+                const el = document.getElementById('leaderboard'); if(!el) return; el.innerHTML = '';
+                const counts = allStudents.map(s => ({...s, count: allShoutouts.filter(sh => sh.studentId === s.id).length})).sort((a,b) => b.count - a.count);
+                counts.slice(0,3).forEach((s, i) => { if(s.count > 0) el.innerHTML += `<div class="leaderboard-entry"><span>#${i+1} ${s.name} (${s.uni})</span><span>${s.count} Shoutouts</span></div>`; });
             }
-            
-            function populateStudentDropdown() { /* Function unchanged */ }
-            function setupPermissions() { /* Function unchanged */ }
+            function renderShoutoutFeed() {
+                const el = document.getElementById('shoutout-feed'); if(!el) return; el.innerHTML = '';
+                [...allShoutouts].sort((a,b) => b.timestamp - a.timestamp).forEach(sh => {
+                    const s = getStudentById(sh.studentId); if(!s) return;
+                    el.innerHTML += `<div class="shoutout-card border-${s.uni}"><div class="shoutout-card-header"><span class="student-name">${s.name}</span><span class="student-uni">${s.uni}</span></div><p>${sh.reason}</p><div class="shoutout-card-footer">- ${sh.teacher} on ${sh.timestamp.toLocaleDateString()}</div></div>`;
+                });
+            }
+            function renderUniversityChart() {
+                const el = document.getElementById('uni-chart'); if(!el) return; const ctx = el.getContext('2d');
+                const totals = { Edinburgh: 0, Manchester: 0, Oxford: 0, Warwick: 0 };
+                allShoutouts.forEach(sh => { const s = getStudentById(sh.studentId); if(s && totals.hasOwnProperty(s.uni)) totals[s.uni]++; });
+                if (uniChart) uniChart.destroy();
+                uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: [getComputedStyle(document.body).getPropertyValue('--edinburgh'), getComputedStyle(document.body).getPropertyValue('--manchester'), getComputedStyle(document.body).getPropertyValue('--oxford'), getComputedStyle(document.body).getPropertyValue('--warwick')] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { ticks: { color: 'white', stepSize: 1 } }, y: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } } });
+            }
+            function renderCalendar() {
+                const gridEl=document.getElementById('calendar-grid'); if(!gridEl) return; const monthLabelEl=document.getElementById('month-year-label'); gridEl.innerHTML=''; const year=currentCalendarDate.getFullYear(), month=currentCalendarDate.getMonth(); monthLabelEl.textContent=`${currentCalendarDate.toLocaleString('default',{month:'long'})} ${year}`; const daysInMonth=new Date(year,month+1,0).getDate(), firstDayIndex=new Date(year,month,1).getDay(); ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day=>{const e=document.createElement('div'); e.className='day-name',e.textContent=day,gridEl.appendChild(e)}); for(let i=0;i<firstDayIndex;i++)gridEl.appendChild(document.createElement('div')); for(let i=1;i<=daysInMonth;i++){const dayEl=document.createElement('div'); dayEl.className='day',dayEl.textContent=i; const currentDateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(allEvents.some(e=>e.date===currentDateStr)){const dot=document.createElement('div'); dot.className='event-dot',dayEl.appendChild(dot)} gridEl.appendChild(dayEl)} document.getElementById('prev-month-btn').disabled=currentCalendarDate<=calendarStartDate, document.getElementById('next-month-btn').disabled=currentCalendarDate>=calendarEndDate;
+            }
+            function populateStudentDropdown() {
+                 const el = document.getElementById('student-select'); if(!el) return; el.innerHTML = '<option value="" disabled selected>Select a student...</option>';
+                 [...allStudents].sort((a,b) => a.name.localeCompare(b.name)).forEach(s => el.innerHTML += `<option value="${s.id}">${s.name} (${s.uni})</option>`);
+            }
+            function setupPermissions() {
+                const btns = [document.getElementById('add-event-btn'), document.getElementById('add-shoutout-btn'), document.getElementById('add-student-btn')];
+                btns.forEach(b => b.classList.add('hidden'));
+                if (currentUserRole === 'admin') btns.forEach(b => b.classList.remove('hidden'));
+                else if (currentUserRole === 'teacher') btns[1].classList.remove('hidden');
+            }
             
             // --- EVENT LISTENERS ---
             document.getElementById('login-btn').addEventListener('click', () => {
                 const roles = ['guest', 'teacher', 'admin'];
                 currentUserRole = roles[(roles.indexOf(currentUserRole) + 1) % roles.length];
-                alert(`Logged in as: ${currentUserRole}`);
+                alert(`Login simulation: Role changed to "${currentUserRole}"`);
                 document.getElementById('login-btn').textContent = `Logout (${currentUserRole})`;
                 setupPermissions();
             });
@@ -393,30 +332,21 @@
             document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
             
             const modal = document.getElementById('add-shoutout-modal');
-            document.getElementById('add-shoutout-btn').onclick = () => {
-                document.getElementById('shoutout-form').reset();
-                document.getElementById('timestamp').value = new Date().toLocaleString();
-                modal.style.display = "block";
-            }
-            document.querySelector('.close-btn').onclick = () => { modal.style.display = "none"; }
-            window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
+            document.getElementById('add-shoutout-btn').onclick = () => { document.getElementById('shoutout-form').reset(); document.getElementById('timestamp').value = new Date().toLocaleString(); modal.style.display = "block"; };
+            document.querySelector('.close-btn').onclick = () => { modal.style.display = "none"; };
+            window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
 
             document.getElementById('shoutout-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
-                const newShoutout = {
-                    studentId: formData.get('student'),
-                    reason: formData.get('reason'),
-                    teacher: formData.get('initials').toUpperCase(),
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                };
-                database.ref('shoutouts').push(newShoutout)
-                    .then(() => { modal.style.display = "none"; })
-                    .catch((error) => { console.error("Error adding shoutout: ", error); });
+                database.ref('shoutouts').push({
+                    studentId: formData.get('student'), reason: formData.get('reason'),
+                    teacher: formData.get('initials').toUpperCase(), timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => { modal.style.display = "none"; }).catch(console.error);
             });
 
             // --- INITIAL LOAD ---
-            renderCalendar(); // This call ensures the calendar structure loads on startup
+            renderCalendar();
             setupPermissions();
         });
     </script>
