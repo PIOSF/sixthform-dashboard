@@ -18,7 +18,6 @@
   header .dashboard { color:pink; font-weight:bold; font-size:1.2em; }
   main { margin-top:100px; display:flex; gap:10px; padding:10px; }
 
-  /* Columns */
   .column { flex:1; background:#fff; padding:10px; border-radius:6px; max-height:80vh; overflow:auto; display:flex; flex-direction:column; }
 
   /* Calendar */
@@ -26,7 +25,6 @@
   .calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
   .day { background:#e0f7e0; padding:5px; min-height:60px; position:relative; border-radius:4px; }
   .date { font-weight:bold; }
-
   .event { padding:2px 4px; border-radius:4px; margin:2px 0; color:white; font-size:12px; position:relative; }
   .event .deleteBtn { position:absolute; right:2px; top:2px; cursor:pointer; font-weight:bold; display:none; }
   .admin .event .deleteBtn { display:inline; }
@@ -40,7 +38,6 @@
   .barFill { width:60px; }
   .barLabel { position:absolute; bottom:0; color:white; font-weight:bold; writing-mode: vertical-rl; transform: rotate(180deg); }
 
-  /* Inputs */
   input, select, button { margin:3px 0; padding:5px; }
 </style>
 </head>
@@ -104,13 +101,13 @@
 <script>
   // Firebase config & init
   const firebaseConfig = {
-    apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
-    authDomain: "piosf-7ab81.firebaseapp.com",
-    databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
-    projectId: "piosf-7ab81",
-    storageBucket: "piosf-7ab81.appspot.com",
-    messagingSenderId: "198847746183",
-    appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_ID",
+    appId: "YOUR_APP_ID"
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -128,25 +125,41 @@
   }
 
   // Calendar logic
-  let currentYear=2025, currentMonth=8; // Sept=8 zero-based
+  let currentYear=2025, currentMonth=8; // Sept
   let events=[];
   const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  const eventsRef = db.ref('events');
+  const shoutoutsRef = db.ref('shoutouts');
+
+  eventsRef.on('value', snap=>{
+    const data = snap.val() || {};
+    events = Object.values(data);
+    renderCalendar();
+  });
+
+  shoutoutsRef.on('value', snap=>{
+    const data = snap.val() || {};
+    shoutouts = Object.values(data).sort((a,b)=>new Date(b.time)-new Date(a.time));
+    renderShoutouts();
+    updateBars();
+  });
 
   function renderCalendar(){
     const cal=document.getElementById('calendar'); cal.innerHTML='';
     const firstDay=new Date(currentYear,currentMonth,1).getDay();
     const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-    for(let i=0;i<firstDay;i++){ const d=document.createElement('div'); cal.appendChild(d); }
+    for(let i=0;i<firstDay;i++) cal.appendChild(document.createElement('div'));
     for(let d=1;d<=daysInMonth;d++){
       const dayDiv=document.createElement('div'); dayDiv.className='day';
       dayDiv.innerHTML=`<div class="date">${d}</div>`;
       events.filter(e=>e.year===currentYear && e.month===currentMonth && e.day===d)
         .forEach(ev=>{
           const div=document.createElement('div'); div.className='event';
-          div.textContent=ev.title + ' ('+ev.unis.join(',')+')';
+          div.textContent=ev.title+' ('+ev.unis.join(',')+')';
           if(isAdmin){
             const x=document.createElement('span'); x.textContent='×'; x.className='deleteBtn';
-            x.onclick=()=>{ events.splice(events.indexOf(ev),1); renderCalendar(); updateBars(); };
+            x.onclick=()=>{ db.ref('events/'+ev.id).remove(); };
             div.appendChild(x);
           }
           dayDiv.appendChild(div);
@@ -165,13 +178,12 @@
     const day=parseInt(document.getElementById('eventDay').value);
     const unis=[...document.querySelectorAll('#eventForm input[type=checkbox]:checked')].map(cb=>cb.value);
     if(!title||!day||unis.length===0) return alert('Fill all fields');
-    events.push({year:currentYear, month:currentMonth, day, title, unis});
-    renderCalendar();
+    eventsRef.push({year:currentYear, month:currentMonth, day, title, unis});
+    document.getElementById('eventForm').style.display='none';
   }
 
-  // Shoutouts logic
-  let shoutouts=[];
-  const studentsUni={'Alice':'Oxford','Bob':'Edinburgh','Charlie':'Manchester','Diana':'Warwick'};
+  // Shoutouts
+  let studentsUni={'Alice':'Oxford','Bob':'Edinburgh','Charlie':'Manchester','Diana':'Warwick'};
   let uniCounts={'Oxford':0,'Edinburgh':0,'Manchester':0,'Warwick':0};
   const uniColors={'Oxford':'blue','Edinburgh':'red','Manchester':'deeppink','Warwick':'purple'};
 
@@ -180,31 +192,29 @@
     const student=document.getElementById('shoutStudent').value;
     const reason=document.getElementById('shoutReason').value;
     const initials=document.getElementById('shoutInitials').value;
-    if(!student||!reason||!initials||initials.length!==3) return alert('Fill all mandatory fields with correct initials');
-    const ts=new Date().toLocaleString();
-    shoutouts.unshift({student,reason,initials,time:ts});
-    uniCounts[studentsUni[student]]++;
-    renderShoutouts();
-    updateBars();
+    if(!student||!reason||!initials||initials.length!==3) return alert('Fill all mandatory fields');
+    const ts=new Date().toISOString();
+    shoutoutsRef.push({student,reason,initials,time:ts});
+    document.getElementById('shoutForm').style.display='none';
   }
 
   function renderShoutouts(){
     const list=document.getElementById('shoutList'); list.innerHTML='';
     shoutouts.forEach(s=>{
       const div=document.createElement('div'); div.className='shoutoutBox';
-      div.textContent=`${s.student}: ${s.reason} (${s.initials}) - ${s.time}`;
+      div.textContent=`${s.student}: ${s.reason} (${s.initials}) - ${new Date(s.time).toLocaleString()}`;
       list.appendChild(div);
     });
   }
 
-  // Bar chart
   function updateBars(){
+    // reset counts
+    uniCounts={'Oxford':0,'Edinburgh':0,'Manchester':0,'Warwick':0};
+    shoutouts.forEach(s=>{ const u=studentsUni[s.student]; if(u) uniCounts[u]++; });
     const bc=document.getElementById('barChart'); bc.innerHTML='';
     for(const uni in uniCounts){
       const bar=document.createElement('div'); bar.className='bar';
-      const fill=document.createElement('div'); fill.className='barFill';
-      fill.style.height=(uniCounts[uni]*20)+'px';
-      fill.style.background=uniColors[uni];
+      const fill=document.createElement('div'); fill.className='barFill'; fill.style.height=(uniCounts[uni]*20)+'px'; fill.style.background=uniColors[uni];
       const label=document.createElement('div'); label.className='barLabel'; label.textContent=uni;
       bar.appendChild(fill); bar.appendChild(label); bc.appendChild(bar);
     }
@@ -212,7 +222,8 @@
 
   // Initial render
   renderCalendar(); renderShoutouts(); updateBars();
-</script>
 
+</script>
+<button onclick="loginAdmin()" style="position:fixed;bottom:10px;right:10px;">Admin Login</button>
 </body>
 </html>
