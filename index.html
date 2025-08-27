@@ -5,6 +5,7 @@
     <title>Ark Pioneer Sixth Form Dashboard</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +60,14 @@
 
         .header-left {
             display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+        }
+
+        .title-container {
+            display: flex;
             align-items: baseline;
+            flex-wrap: wrap; /* Allows "Dashboard" to wrap cleanly below the main title */
         }
 
         .header-title {
@@ -67,6 +75,9 @@
             font-size: 2.5em;
             color: white;
             font-weight: normal;
+            margin: 0; /* Removes default h1 margin */
+            padding: 0; /* Removes default h1 padding */
+            white-space: nowrap; /* Prevents the main title from breaking into multiple lines */
         }
 
         .header-title i { font-weight: normal; font-style: italic; }
@@ -85,6 +96,7 @@
             margin-left: 25px;
             font-style: italic;
             opacity: 0.9;
+            white-space: nowrap;
         }
 
         #login-btn {
@@ -341,7 +353,7 @@
 
         /* --- Modal --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
-        .modal-content { background-color: var(--card-color); margin: 10% auto; padding: 30px; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 600px; border-radius: 10px; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column;}
+        .modal-content { background-color: var(--card-color); margin: 10% auto; padding: 30px; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 500px; border-radius: 10px; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column;}
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .modal-form label { display: block; margin-top: 15px; font-weight: bold; }
         .modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #555; background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box; }
@@ -452,19 +464,17 @@
         }
 
         /* --- Login Modal Styling --- */
-        #login-role-selector { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .role-btn { padding: 15px; border-radius: 5px; border: none; font-size: 1.2em; color: white; cursor: pointer; transition: transform 0.2s; }
-        .role-btn:hover { transform: scale(1.02); }
-        #role-admin { background-color: #c0392b; }
-        #role-teacher { background-color: #2980b9; }
-        #role-guest { background-color: #7f8c8d; }
+        #logout-btn { background-color: #7f8c8d; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-left">
-            <span class="header-title">Ark Pioneer <i>Sixth Form</i><span class="dashboard-font">Dashboard</span></span>
+            <div class="title-container">
+                <h1 class="header-title">Ark Pioneer <i>Sixth Form</i></h1>
+                <span class="dashboard-font">Dashboard</span>
+            </div>
             <span id="current-date-display" class="header-date"></span>
         </div>
         <button id="login-btn">Login</button>
@@ -536,10 +546,6 @@
                         <div id="autocomplete-results" class="autocomplete-results" style="display: none;"></div>
                     </div>
                 </div>
-                <div id="edit-shoutout-recipient-section" style="display: none;">
-                    <label>Awarded to:</label>
-                    <input type="text" id="edit-shoutout-student-name" readonly>
-                </div>
                 <input type="hidden" id="shoutout-id-input">
                 <label for="shoutout-reason">Reason:</label>
                 <textarea id="shoutout-reason" name="reason" rows="4" required maxlength="60"></textarea>
@@ -554,13 +560,16 @@
     <div id="login-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Select User Role (Simulation)</h2>
-            <p>Choose a role to see the dashboard from that user's perspective. This does not require a password and will reset on page refresh.</p>
-            <div id="login-role-selector">
-                <button id="role-admin" class="role-btn">Admin View</button>
-                <button id="role-teacher" class="role-btn">Teacher View</button>
-                <button id="role-guest" class="role-btn">Guest View (Logout)</button>
-            </div>
+            <h2>Dashboard Login</h2>
+            <form id="login-form" class="modal-form">
+                <p>Enter your username and password to log in.</p>
+                <label for="username-input">Username:</label>
+                <input type="text" id="username-input" required>
+                <label for="password-input">Password:</label>
+                <input type="password" id="password-input" required>
+                <button type="submit" class="admin-btn">Login</button>
+                <button type="button" id="logout-btn" class="admin-btn">Logout (Guest View)</button>
+            </form>
         </div>
     </div>
     <div id="add-student-modal" class="modal">
@@ -662,6 +671,10 @@
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Manage Events</h2>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                <p style="flex-grow: 1; margin: 0; opacity: 0.8;">A list of all upcoming and past events.</p>
+                <button id="delete-all-events-btn" class="admin-btn" style="background-color: #c0392b; margin-top: 0; flex-shrink: 0; width: auto;">Delete All</button>
+            </div>
             <div id="event-list" class="management-list"></div>
         </div>
     </div>
@@ -676,6 +689,49 @@
             let shoutoutRecipients = [];
             let eventDatepicker = null;
 
+            // --- INITIALIZE FIREBASE and AUTH LISTENER ---
+            try {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
+                    authDomain: "piosf-7ab81.firebaseapp.com",
+                    databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
+                    projectId: "piosf-7ab81",
+                    storageBucket: "piosf-7ab81.appspot.com",
+                    messagingSenderId: "198847746183",
+                    appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
+                };
+                firebase.initializeApp(firebaseConfig);
+                const database = firebase.database();
+
+                // Listen for authentication state changes
+                firebase.auth().onAuthStateChanged(user => {
+                    if (user) {
+                        // User is signed in.
+                        console.log(user.email + ' is logged in.');
+                        if (user.email === 'admin@arkpioneer.org') {
+                            currentUserRole = 'admin';
+                        } else if (user.email === 'teacher@arkpioneer.org') {
+                            currentUserRole = 'teacher';
+                        } else {
+                            currentUserRole = 'guest';
+                        }
+                    } else {
+                        // User is signed out.
+                        console.log('No user is logged in.');
+                        currentUserRole = 'guest';
+                    }
+                    // Update the page permissions based on the new role
+                    setupPermissions();
+                });
+
+                database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderShoutoutUI(); });
+                database.ref('shoutouts').on('value', (snapshot) => { const data = snapshot.val() || {}; allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); renderShoutoutUI(); });
+                database.ref('events').on('value', (snapshot) => { const data = snapshot.val() || {}; allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderCalendar(); renderManageEventsModal(); });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                alert("Could not connect to the database. Check console for details.");
+            }
+            
             const getStudentById = (id) => allStudents.find(s => s.id === id);
             
             function displayCurrentDate() {
@@ -704,6 +760,7 @@
                     }
                 }
                 
+                document.getElementById('login-btn').textContent = currentUserRole === 'guest' ? 'Login' : `Logout (${currentUserRole})`;
                 renderShoutoutFeed();
                 renderCalendar();
             }
@@ -933,425 +990,428 @@
                 resultsContainer.style.display = (matchingStudents.length > 0 || matchingUnis.length > 0) ? 'block' : 'none';
             }
 
-            // --- SETUP UI AND EVENT LISTENERS (MAIN BLOCK) ---
-            
-            // Modal variables
-            const loginModal = document.getElementById('login-modal');
-            const addShoutoutModal = document.getElementById('add-shoutout-modal');
-            const addStudentModal = document.getElementById('add-student-modal');
-            const addEventModal = document.getElementById('add-event-modal');
-            const bulkAddModal = document.getElementById('bulk-add-modal');
-            const bulkAddEventsModal = document.getElementById('bulk-add-events-modal');
-            const teamSheetModal = document.getElementById('team-sheet-modal');
-            const manageStudentsModal = document.getElementById('manage-students-modal');
-
-            // Login
-            document.getElementById('login-btn').addEventListener('click', () => { loginModal.style.display = 'block'; });
-            loginModal.querySelector('.close-btn').addEventListener('click', () => loginModal.style.display = 'none');
-            document.getElementById('login-role-selector').addEventListener('click', (event) => {
-                if (event.target.tagName !== 'BUTTON') return;
-                const roleId = event.target.id;
-                if (roleId === 'role-admin') currentUserRole = 'admin';
-                else if (roleId === 'role-teacher') currentUserRole = 'teacher';
-                else if (roleId === 'role-guest') currentUserRole = 'guest';
-                
-                setupPermissions();
-                
-                document.getElementById('login-btn').textContent = currentUserRole === 'guest' ? 'Login' : `Logout (${currentUserRole})`;
-                loginModal.style.display = 'none';
-            });
-            
-            // Modal Close Buttons
-            addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = "none");
-            addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = "none");
-            addEventModal.querySelector('.close-btn').addEventListener('click', () => addEventModal.style.display = "none");
-            bulkAddModal.querySelector('.close-btn').addEventListener('click', () => bulkAddModal.style.display = 'none');
-            bulkAddEventsModal.querySelector('.close-btn').addEventListener('click', () => bulkAddEventsModal.style.display = 'none');
-            teamSheetModal.querySelector('.close-btn').addEventListener('click', () => teamSheetModal.style.display = 'none');
-            manageStudentsModal.querySelector('.close-btn').addEventListener('click', () => manageStudentsModal.style.display = 'none');
-
-            // --- REFACTORED AND ISOLATED "MANAGE EVENTS" FEATURE ---
-            function setupManageEventsFeature() {
-                const manageEventsBtn = document.getElementById('manage-events-btn');
+            // --- ALL EVENT LISTENERS ARE NOW INITIALIZED IN THIS FUNCTION ---
+            function setupEventListeners() {
+                // Modal variables
+                const loginModal = document.getElementById('login-modal');
+                const addShoutoutModal = document.getElementById('add-shoutout-modal');
+                const addStudentModal = document.getElementById('add-student-modal');
+                const addEventModal = document.getElementById('add-event-modal');
+                const bulkAddModal = document.getElementById('bulk-add-modal');
+                const bulkAddEventsModal = document.getElementById('bulk-add-events-modal');
+                const teamSheetModal = document.getElementById('team-sheet-modal');
+                const manageStudentsModal = document.getElementById('manage-students-modal');
                 const manageEventsModal = document.getElementById('manage-events-modal');
-                const eventListEl = document.getElementById('event-list');
-                const closeBtn = manageEventsModal.querySelector('.close-btn');
 
-                if (!manageEventsBtn || !manageEventsModal || !eventListEl || !closeBtn) {
-                    console.error("Could not initialize Manage Events feature: one or more elements are missing.");
-                    return;
-                }
+                // Main Login
+                document.getElementById('login-btn').addEventListener('click', () => { 
+                    if (currentUserRole !== 'guest') {
+                        firebase.auth().signOut();
+                    } else {
+                        document.getElementById('login-form').reset();
+                        loginModal.style.display = 'block'; 
+                    }
+                });
+                loginModal.querySelector('.close-btn').addEventListener('click', () => loginModal.style.display = 'none');
+                
+                document.getElementById('login-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const username = document.getElementById('username-input').value.trim();
+                    const password = document.getElementById('password-input').value.trim();
+                    const auth = firebase.auth();
+                    const database = firebase.database();
 
-                manageEventsBtn.addEventListener('click', () => {
+                    database.ref('usernames/' + username).once('value')
+                        .then(snapshot => {
+                            const email = snapshot.val();
+                            if (email) {
+                                return auth.signInWithEmailAndPassword(email, password);
+                            } else {
+                                throw new Error("Invalid username or password.");
+                            }
+                        })
+                        .then(userCredential => {
+                            console.log('User signed in:', userCredential.user.email);
+                            loginModal.style.display = 'none';
+                        })
+                        .catch(error => {
+                            console.error('Login failed:', error.message);
+                            alert('Login failed. Please check your username and password.');
+                        });
+                });
+                
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    firebase.auth().signOut();
+                    loginModal.style.display = 'none';
+                });
+
+                // Modal Close Buttons
+                addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = "none");
+                addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = "none");
+                addEventModal.querySelector('.close-btn').addEventListener('click', () => addEventModal.style.display = "none");
+                bulkAddModal.querySelector('.close-btn').addEventListener('click', () => bulkAddModal.style.display = 'none');
+                bulkAddEventsModal.querySelector('.close-btn').addEventListener('click', () => bulkAddEventsModal.style.display = 'none');
+                teamSheetModal.querySelector('.close-btn').addEventListener('click', () => teamSheetModal.style.display = 'none');
+                manageStudentsModal.querySelector('.close-btn').addEventListener('click', () => manageStudentsModal.style.display = 'none');
+                manageEventsModal.querySelector('.close-btn').addEventListener('click', () => manageEventsModal.style.display = 'none');
+                
+                // Admin Buttons to Open Modals
+                document.getElementById('add-shoutout-btn').addEventListener('click', () => {
+                    const form = document.getElementById('shoutout-form');
+                    form.reset();
+                    document.getElementById('shoutout-modal-title').textContent = 'Log a New Shoutout';
+                    document.getElementById('shoutout-submit-btn').textContent = 'Submit Shoutout';
+                    document.getElementById('shoutout-id-input').value = '';
+                    document.getElementById('timestamp-label').style.display = 'block';
+                    document.getElementById('timestamp').style.display = 'block';
+                    document.getElementById('timestamp').value = new Date().toLocaleString();
+                    shoutoutRecipients = [];
+                    renderRecipientTags();
+                    addShoutoutModal.style.display = "block";
+                });
+                document.getElementById('add-student-btn').addEventListener('click', () => {
+                    const form = document.getElementById('add-student-form');
+                    form.reset();
+                    document.getElementById('student-modal-title').textContent = 'Add New Student';
+                    document.getElementById('student-submit-btn').textContent = 'Add Student';
+                    document.getElementById('student-id-input').value = '';
+                    addStudentModal.style.display = "block";
+                });
+                document.getElementById('add-event-btn').addEventListener('click', () => openEditEventModal());
+                document.getElementById('bulk-add-btn').addEventListener('click', () => {
+                    document.getElementById('bulk-add-form').reset();
+                    bulkAddModal.style.display = 'block';
+                });
+                document.getElementById('bulk-add-events-btn').addEventListener('click', () => {
+                    document.getElementById('bulk-add-events-form').reset();
+                    bulkAddEventsModal.style.display = 'block';
+                });
+                document.getElementById('manage-events-btn').addEventListener('click', () => {
                     renderManageEventsModal();
                     manageEventsModal.style.display = 'block';
                 });
 
-                closeBtn.addEventListener('click', () => manageEventsModal.style.display = 'none');
-
-                eventListEl.addEventListener('click', (e) => {
-                    const target = e.target.closest('.admin-icon');
-                    if (!target) return;
-
-                    const eventId = target.dataset.eventId;
-                    if (!eventId) return;
-
-                    if (target.classList.contains('delete-event-btn')) {
-                        if (confirm('Are you sure you want to delete this event?')) {
-                            firebase.database().ref('events/' + eventId).remove();
-                            manageEventsModal.style.display = 'none';
+                // Delegated listeners for dynamic content
+                document.getElementById('shoutout-feed').addEventListener('click', (e) => {
+                    const shoutoutId = e.target.dataset.shoutoutId;
+                    if (!shoutoutId) return;
+                    if (e.target.classList.contains('delete-shoutout-btn')) {
+                        if (confirm('Are you sure you want to delete this shoutout?')) {
+                            firebase.database().ref('shoutouts/' + shoutoutId).remove();
                         }
-                    } else if (target.classList.contains('edit-event-btn')) {
+                    } else if (e.target.classList.contains('edit-shoutout-btn')) {
+                        const shoutout = allShoutouts.find(s => s.id === shoutoutId);
+                        const student = getStudentById(shoutout.studentId);
+                        if (!shoutout || !student) return;
+
+                        shoutoutRecipients = [{ type: 'student', id: student.id, name: student.name }];
+                        renderRecipientTags();
+
+                        document.getElementById('shoutout-modal-title').textContent = 'Edit Shoutout';
+                        document.getElementById('shoutout-submit-btn').textContent = 'Save Changes';
+                        document.getElementById('shoutout-id-input').value = shoutout.id;
+                        document.getElementById('shoutout-reason').value = shoutout.reason;
+                        document.getElementById('teacher-initials').value = shoutout.teacher;
+                        document.getElementById('timestamp-label').style.display = 'none';
+                        document.getElementById('timestamp').style.display = 'none';
+                        addShoutoutModal.style.display = 'block';
+                    }
+                });
+
+                document.getElementById('week-view').addEventListener('click', (e) => {
+                    const target = e.target;
+                    const tsButton = target.closest('.ts-btn');
+                    const editButton = target.closest('.edit-event-btn');
+                    const deleteButton = target.closest('.delete-event-btn');
+
+                    if (tsButton) {
+                        const { eventId, uniName } = tsButton.dataset;
+                        const eventData = allEvents.find(ev => ev.id === eventId);
+                        if (!eventData) return;
+                        const currentText = eventData.teamSheets?.[uniName] || '';
+                        document.getElementById('team-sheet-title').textContent = `Team Sheet for ${uniName}`;
+                        document.getElementById('ts-event-id').value = eventId;
+                        document.getElementById('ts-uni-name').value = uniName;
+                        document.getElementById('team-sheet-text').value = currentText;
+                        teamSheetModal.style.display = 'block';
+                        return;
+                    }
+                    if (editButton) {
+                        openEditEventModal(editButton.dataset.eventId);
+                        return;
+                    }
+                    if (deleteButton) {
+                        if (confirm('Are you sure you want to delete this event?')) {
+                            firebase.database().ref('events/' + deleteButton.dataset.eventId).remove();
+                        }
+                        return;
+                    }
+                });
+
+                document.getElementById('manage-data-btn').addEventListener('click', () => {
+                    renderManageStudentsModal();
+                    manageStudentsModal.style.display = 'block';
+                });
+                
+                document.getElementById('student-search-input').addEventListener('keyup', () => {
+                    renderManageStudentsModal(document.getElementById('student-search-input').value);
+                });
+
+                document.getElementById('student-list').addEventListener('click', (e) => {
+                    const studentId = e.target.dataset.studentId;
+                    if (!studentId) return;
+                    if (e.target.classList.contains('delete-student-btn')) {
+                        if (confirm('WARNING: This will delete the student AND all of their shoutouts permanently. Are you sure?')) {
+                            const updates = {};
+                            updates['/students/' + studentId] = null;
+                            allShoutouts.forEach(shoutout => {
+                                if (shoutout.studentId === studentId) {
+                                    updates['/shoutouts/' + shoutout.id] = null;
+                                }
+                            });
+                            firebase.database().ref().update(updates)
+                                .then(() => renderManageStudentsModal());
+                        }
+                    } else if (e.target.classList.contains('edit-student-btn')) {
+                        const student = allStudents.find(s => s.id === studentId);
+                        if (!student) return;
+                        document.getElementById('student-modal-title').textContent = 'Edit Student';
+                        document.getElementById('student-submit-btn').textContent = 'Save Changes';
+                        document.getElementById('student-id-input').value = student.id;
+                        document.getElementById('student-name-input').value = student.name;
+                        document.getElementById('uni-select').value = student.uni;
+                        manageStudentsModal.style.display = 'none';
+                        addStudentModal.style.display = 'block';
+                    }
+                });
+
+                document.getElementById('delete-all-students-btn').addEventListener('click', () => {
+                    if (confirm('WARNING: Are you sure you want to delete ALL students and ALL shoutouts from the database? This action is permanent.')) {
+                        const confirmation = prompt('To confirm, please type DELETE in the box below.');
+                        if (confirmation === 'DELETE') {
+                            const updates = { '/students': null, '/shoutouts': null };
+                            firebase.database().ref().update(updates)
+                                .then(() => {
+                                    alert('All students and shoutouts have been deleted.');
+                                    manageStudentsModal.style.display = 'none';
+                                })
+                                .catch(err => alert('An error occurred: ' + err.message));
+                        } else {
+                            alert('Deletion cancelled.');
+                        }
+                    }
+                });
+
+                document.getElementById('event-list').addEventListener('click', (e) => {
+                    const target = e.target;
+                    const editButton = target.closest('.edit-event-btn');
+                    const deleteButton = target.closest('.delete-event-btn');
+
+                    if (editButton) {
                         manageEventsModal.style.display = 'none';
-                        openEditEventModal(eventId);
+                        openEditEventModal(editButton.dataset.eventId);
+                        return;
+                    }
+                    if (deleteButton) {
+                        if (confirm('Are you sure you want to delete this event?')) {
+                            firebase.database().ref('events/' + deleteButton.dataset.eventId).remove();
+                        }
+                        return;
+                    }
+                });
+
+                document.getElementById('delete-all-events-btn').addEventListener('click', () => {
+                    if (confirm('WARNING: Are you sure you want to delete ALL events from the database? This action is permanent.')) {
+                        const confirmation = prompt('To confirm, please type DELETE in the box below.');
+                        if (confirmation === 'DELETE') {
+                            firebase.database().ref('/events').set(null)
+                                .then(() => {
+                                    alert('All events have been deleted.');
+                                    manageEventsModal.style.display = 'none';
+                                })
+                                .catch(err => alert('An error occurred: ' + err.message));
+                        } else {
+                            alert('Deletion cancelled.');
+                        }
+                    }
+                });
+
+                // Form Submissions
+                document.getElementById('shoutout-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const shoutoutId = document.getElementById('shoutout-id-input').value;
+                    const reason = document.getElementById('shoutout-reason').value;
+                    const teacher = document.getElementById('teacher-initials').value.toUpperCase();
+                    
+                    if (shoutoutId) {
+                        if (shoutoutRecipients.length !== 1 || shoutoutRecipients[0].type !== 'student') {
+                            return alert('When editing, you must assign the shoutout to exactly one student.');
+                        }
+                        const studentId = shoutoutRecipients[0].id;
+                        const shoutoutUpdates = { reason, teacher, studentId };
+                        firebase.database().ref('shoutouts/' + shoutoutId).update(shoutoutUpdates)
+                            .then(() => addShoutoutModal.style.display = "none");
+                    } else {
+                        if (shoutoutRecipients.length === 0) return alert('Please select at least one student or university.');
+                        let finalStudentIds = new Set();
+                        shoutoutRecipients.forEach(recipient => {
+                            if (recipient.type === 'student') {
+                                finalStudentIds.add(recipient.id);
+                            } else if (recipient.type === 'uni') {
+                                allStudents.forEach(student => {
+                                    if (student.uni === recipient.name) { finalStudentIds.add(student.id); }
+                                });
+                            }
+                        });
+                        const pushPromises = [];
+                        finalStudentIds.forEach(studentId => {
+                            const shoutoutData = { studentId, reason, teacher, timestamp: firebase.database.ServerValue.TIMESTAMP };
+                            pushPromises.push(firebase.database().ref('shoutouts').push(shoutoutData));
+                        });
+                        Promise.all(pushPromises).then(() => { addShoutoutModal.style.display = "none"; });
+                    }
+                });
+
+                document.getElementById('add-student-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const studentId = document.getElementById('student-id-input').value;
+                    const studentData = { name: document.getElementById('student-name-input').value, uni: document.getElementById('uni-select').value };
+                    if (studentId) {
+                        firebase.database().ref('students/' + studentId).update(studentData).then(() => addStudentModal.style.display = "none");
+                    } else {
+                        firebase.database().ref('students').push(studentData).then(() => addStudentModal.style.display = "none");
+                    }
+                });
+                
+                document.getElementById('add-event-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const eventId = document.getElementById('event-id-input').value;
+                    const eventDate = document.getElementById('event-date-input').value;
+                    if (!eventDate) return alert('Please select a date for the event.');
+                    const selectedUnis = Array.from(document.querySelectorAll('#event-unis-checkboxes input:checked')).map(cb => cb.value);
+                    if (selectedUnis.length === 0) return alert('Please select at least one involved university.');
+                    const newEventData = { title: document.getElementById('event-title-input').value, date: eventDate, unis: selectedUnis };
+                    
+                    if (eventId) {
+                        firebase.database().ref('events/' + eventId).update(newEventData).then(() => addEventModal.style.display = "none");
+                    } else {
+                        firebase.database().ref('events').push(newEventData).then(() => addEventModal.style.display = "none");
+                    }
+                });
+                
+                document.getElementById('team-sheet-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const eventId = document.getElementById('ts-event-id').value;
+                    const uniName = document.getElementById('ts-uni-name').value;
+                    const teamSheetText = document.getElementById('team-sheet-text').value;
+                    if (!eventId || !uniName) return alert('Error: Missing event data.');
+                    const dbPath = `events/${eventId}/teamSheets/${uniName}`;
+                    firebase.database().ref(dbPath).set(teamSheetText)
+                        .then(() => teamSheetModal.style.display = 'none')
+                        .catch(error => alert('Failed to save team sheet. Error: ' + error.message));
+                });
+                
+                document.getElementById('bulk-add-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const fileInput = document.getElementById('csv-file-input');
+                    if (fileInput.files.length === 0) return alert('Please select a CSV file to upload.');
+                    Papa.parse(fileInput.files[0], {
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
+                            let studentsToAdd = [];
+                            let skippedRows = 0;
+                            results.data.forEach(row => {
+                                const name = row[0] ? row[0].trim() : '';
+                                const uni = row[1] ? row[1].trim() : '';
+                                if (name && uni && validUnis.includes(uni)) {
+                                    studentsToAdd.push({ name, uni });
+                                } else {
+                                    skippedRows++;
+                                }
+                            });
+                            if(studentsToAdd.length === 0) return alert(`Processing complete. Found ${results.data.length} row(s). ${skippedRows} row(s) were skipped due to incorrect formatting. No valid students were added.`);
+                            const pushPromises = studentsToAdd.map(student => firebase.database().ref('students').push(student));
+                            Promise.all(pushPromises)
+                                .then(() => {
+                                    bulkAddModal.style.display = 'none';
+                                    alert(`Successfully added ${studentsToAdd.length} students.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
+                                })
+                                .catch(error => alert('An error occurred: ' + error.message));
+                        }
+                    });
+                });
+                
+                document.getElementById('bulk-add-events-form').addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const fileInput = document.getElementById('csv-events-file-input');
+                    if (fileInput.files.length === 0) return alert('Please select a CSV file.');
+                    Papa.parse(fileInput.files[0], {
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
+                            let eventsToAdd = [];
+                            let skippedRows = 0;
+                            const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+                            results.data.forEach(row => {
+                                const title = row[0] ? row[0].trim() : '';
+                                const date = row[1] ? row[1].trim() : '';
+                                const unisRaw = row[2] ? row[2].trim() : '';
+                                const dateMatch = date.match(dateRegex);
+                                const eventUnis = unisRaw ? unisRaw.split(',').map(u => u.trim()).filter(u => validUnis.includes(u)) : [];
+                                if (title && dateMatch && eventUnis.length > 0) {
+                                    const formattedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+                                    eventsToAdd.push({ title, date: formattedDate, unis: eventUnis });
+                                } else {
+                                    skippedRows++;
+                                }
+                            });
+                            if(eventsToAdd.length === 0) return alert(`No valid events found. ${skippedRows} row(s) were skipped due to missing info, invalid date format (DD/MM/YYYY), or invalid universities.`);
+                            const pushPromises = eventsToAdd.map(event => firebase.database().ref('events').push(event));
+                            Promise.all(pushPromises)
+                                .then(() => {
+                                    bulkAddEventsModal.style.display = 'none';
+                                    alert(`Successfully added ${eventsToAdd.length} events.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
+                                })
+                                .catch(error => alert('An error occurred: ' + error.message));
+                        }
+                    });
+                });
+                
+                // Other UI Listeners
+                document.getElementById('recipient-input').addEventListener('keyup', () => { updateAutocomplete(document.getElementById('recipient-input').value); });
+                document.getElementById('recipient-container').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-tag')) {
+                        const { id } = e.target.dataset;
+                        shoutoutRecipients = shoutoutRecipients.filter(r => (r.id || r.name) !== id);
+                        renderRecipientTags();
+                    } else {
+                        document.getElementById('recipient-input').focus();
+                    }
+                });
+                document.getElementById('autocomplete-results').addEventListener('click', (e) => {
+                    const item = e.target.closest('.autocomplete-item');
+                    if (!item) return;
+                    const { type, id, name } = item.dataset;
+                    shoutoutRecipients.push(type === 'student' ? { type, id, name } : { type, name });
+                    document.getElementById('recipient-input').value = '';
+                    updateAutocomplete('');
+                    renderRecipientTags();
+                    document.getElementById('recipient-input').focus();
+                });
+                
+                document.getElementById('prev-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() - 7); renderCalendar(); });
+                document.getElementById('next-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() + 7); renderCalendar(); });
+                document.getElementById('this-week-btn').addEventListener('click', () => { currentCalendarDate = new Date(); renderCalendar(); });
+
+                window.addEventListener('click', (event) => {
+                    if (event.target.classList.contains('modal')) {
+                        event.target.style.display = "none";
                     }
                 });
             }
-            setupManageEventsFeature(); // Initialize the feature
             
-            // Button click listeners to open modals
-            document.getElementById('add-shoutout-btn').addEventListener('click', () => {
-                const form = document.getElementById('shoutout-form');
-                form.reset();
-                document.getElementById('shoutout-modal-title').textContent = 'Log a New Shoutout';
-                document.getElementById('shoutout-submit-btn').textContent = 'Submit Shoutout';
-                document.getElementById('shoutout-id-input').value = '';
-                document.getElementById('add-shoutout-recipient-section').style.display = 'block';
-                document.getElementById('edit-shoutout-recipient-section').style.display = 'none';
-                document.getElementById('timestamp-label').style.display = 'block';
-                document.getElementById('timestamp').style.display = 'block';
-                document.getElementById('timestamp').value = new Date().toLocaleString();
-                shoutoutRecipients = [];
-                renderRecipientTags();
-                addShoutoutModal.style.display = "block";
-            });
-            document.getElementById('add-student-btn').addEventListener('click', () => {
-                const form = document.getElementById('add-student-form');
-                form.reset();
-                document.getElementById('student-modal-title').textContent = 'Add New Student';
-                document.getElementById('student-submit-btn').textContent = 'Add Student';
-                document.getElementById('student-id-input').value = '';
-                addStudentModal.style.display = "block";
-            });
-            document.getElementById('add-event-btn').addEventListener('click', () => openEditEventModal());
-            document.getElementById('bulk-add-btn').addEventListener('click', () => {
-                document.getElementById('bulk-add-form').reset();
-                bulkAddModal.style.display = 'block';
-            });
-            document.getElementById('bulk-add-events-btn').addEventListener('click', () => {
-                document.getElementById('bulk-add-events-form').reset();
-                bulkAddEventsModal.style.display = 'block';
-            });
-            
-            // Delegated listeners for dynamic content
-            document.getElementById('shoutout-feed').addEventListener('click', (e) => {
-                const shoutoutId = e.target.dataset.shoutoutId;
-                if (!shoutoutId) return;
-
-                if (e.target.classList.contains('delete-shoutout-btn')) {
-                    if (confirm('Are you sure you want to delete this shoutout?')) {
-                        firebase.database().ref('shoutouts/' + shoutoutId).remove();
-                    }
-                } else if (e.target.classList.contains('edit-shoutout-btn')) {
-                    const shoutout = allShoutouts.find(s => s.id === shoutoutId);
-                    const student = getStudentById(shoutout.studentId);
-                    if (!shoutout || !student) return;
-
-                    document.getElementById('shoutout-modal-title').textContent = `Edit Shoutout for ${student.name}`;
-                    document.getElementById('shoutout-submit-btn').textContent = 'Save Changes';
-                    document.getElementById('shoutout-id-input').value = shoutout.id;
-                    document.getElementById('add-shoutout-recipient-section').style.display = 'none';
-                    document.getElementById('edit-shoutout-recipient-section').style.display = 'block';
-                    document.getElementById('edit-shoutout-student-name').value = `${student.name} (${student.uni})`;
-                    document.getElementById('shoutout-reason').value = shoutout.reason;
-                    document.getElementById('teacher-initials').value = shoutout.teacher;
-                    document.getElementById('timestamp-label').style.display = 'none';
-                    document.getElementById('timestamp').style.display = 'none';
-                    addShoutoutModal.style.display = 'block';
-                }
-            });
-
-            document.getElementById('week-view').addEventListener('click', (e) => {
-                const target = e.target;
-                const tsButton = target.closest('.ts-btn');
-                const editButton = target.closest('.edit-event-btn');
-                const deleteButton = target.closest('.delete-event-btn');
-
-                if (tsButton) {
-                    const { eventId, uniName } = tsButton.dataset;
-                    const eventData = allEvents.find(ev => ev.id === eventId);
-                    if (!eventData) return;
-
-                    const currentText = eventData.teamSheets?.[uniName] || '';
-                    document.getElementById('team-sheet-title').textContent = `Team Sheet for ${uniName}`;
-                    document.getElementById('ts-event-id').value = eventId;
-                    document.getElementById('ts-uni-name').value = uniName;
-                    document.getElementById('team-sheet-text').value = currentText;
-                    teamSheetModal.style.display = 'block';
-                    return;
-                }
-
-                if (editButton) {
-                    const eventId = editButton.dataset.eventId;
-                    openEditEventModal(eventId);
-                    return;
-                }
-
-                if (deleteButton) {
-                    const eventId = deleteButton.dataset.eventId;
-                    if (confirm('Are you sure you want to delete this event?')) {
-                        firebase.database().ref('events/' + eventId).remove();
-                    }
-                    return;
-                }
-            });
-
-            document.getElementById('manage-data-btn').addEventListener('click', () => {
-                renderManageStudentsModal();
-                manageStudentsModal.style.display = 'block';
-            });
-            
-            document.getElementById('student-search-input').addEventListener('keyup', () => {
-                renderManageStudentsModal(document.getElementById('student-search-input').value);
-            });
-
-            document.getElementById('student-list').addEventListener('click', (e) => {
-                const studentId = e.target.dataset.studentId;
-                if (!studentId) return;
-
-                if (e.target.classList.contains('delete-student-btn')) {
-                    if (confirm('WARNING: This will delete the student AND all of their shoutouts permanently. Are you sure?')) {
-                        const updates = {};
-                        updates['/students/' + studentId] = null;
-                        allShoutouts.forEach(shoutout => {
-                            if (shoutout.studentId === studentId) {
-                                updates['/shoutouts/' + shoutout.id] = null;
-                            }
-                        });
-                        firebase.database().ref().update(updates)
-                            .then(() => renderManageStudentsModal());
-                    }
-                } else if (e.target.classList.contains('edit-student-btn')) {
-                    const student = allStudents.find(s => s.id === studentId);
-                    if (!student) return;
-
-                    document.getElementById('student-modal-title').textContent = 'Edit Student';
-                    document.getElementById('student-submit-btn').textContent = 'Save Changes';
-                    document.getElementById('student-id-input').value = student.id;
-                    document.getElementById('student-name-input').value = student.name;
-                    document.getElementById('uni-select').value = student.uni;
-                    
-                    manageStudentsModal.style.display = 'none';
-                    addStudentModal.style.display = 'block';
-                }
-            });
-
-            document.getElementById('delete-all-students-btn').addEventListener('click', () => {
-                if (confirm('WARNING: Are you sure you want to delete ALL students and ALL shoutouts from the database? This action is permanent.')) {
-                    const confirmation = prompt('To confirm, please type DELETE in the box below.');
-                    if (confirmation === 'DELETE') {
-                        const updates = { '/students': null, '/shoutouts': null };
-                        firebase.database().ref().update(updates)
-                            .then(() => {
-                                alert('All students and shoutouts have been deleted.');
-                                manageStudentsModal.style.display = 'none';
-                            })
-                            .catch(err => alert('An error occurred: ' + err.message));
-                    } else {
-                        alert('Deletion cancelled.');
-                    }
-                }
-            });
-
-            document.getElementById('shoutout-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const formData = new FormData(event.target);
-                const shoutoutId = document.getElementById('shoutout-id-input').value;
-                const reason = formData.get('reason');
-                const teacher = formData.get('initials').toUpperCase();
-                
-                if (shoutoutId) {
-                    firebase.database().ref('shoutouts/' + shoutoutId).update({ reason, teacher })
-                        .then(() => addShoutoutModal.style.display = "none");
-                } else {
-                    if (shoutoutRecipients.length === 0) {
-                        return alert('Please select at least one student or university.');
-                    }
-                    let finalStudentIds = new Set();
-                    shoutoutRecipients.forEach(recipient => {
-                        if (recipient.type === 'student') {
-                            finalStudentIds.add(recipient.id);
-                        } else if (recipient.type === 'uni') {
-                            allStudents.forEach(student => {
-                                if (student.uni === recipient.name) { finalStudentIds.add(student.id); }
-                            });
-                        }
-                    });
-                    const pushPromises = [];
-                    finalStudentIds.forEach(studentId => {
-                        const shoutoutData = { studentId, reason, teacher, timestamp: firebase.database.ServerValue.TIMESTAMP };
-                        pushPromises.push(firebase.database().ref('shoutouts').push(shoutoutData));
-                    });
-                    Promise.all(pushPromises).then(() => { addShoutoutModal.style.display = "none"; });
-                }
-            });
-
-            document.getElementById('add-student-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const formData = new FormData(event.target);
-                const studentId = document.getElementById('student-id-input').value;
-                const studentData = { name: formData.get('studentName'), uni: formData.get('uni') };
-
-                if (studentId) {
-                    firebase.database().ref('students/' + studentId).update(studentData)
-                        .then(() => addStudentModal.style.display = "none");
-                } else {
-                    firebase.database().ref('students').push(studentData)
-                        .then(() => addStudentModal.style.display = "none");
-                }
-            });
-            
-            document.getElementById('add-event-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const formData = new FormData(event.target);
-                const eventId = document.getElementById('event-id-input').value;
-                const eventDate = formData.get('eventDate');
-
-                if (!eventDate) return alert('Please select a date for the event.');
-                const selectedUnis = [];
-                document.querySelectorAll('#event-unis-checkboxes input:checked').forEach(checkbox => {
-                    selectedUnis.push(checkbox.value);
-                });
-                if (selectedUnis.length === 0) return alert('Please select at least one involved university.');
-
-                const newEventData = { title: formData.get('eventTitle'), date: eventDate, unis: selectedUnis };
-                
-                if (eventId) {
-                    firebase.database().ref('events/' + eventId).update(newEventData)
-                        .then(() => addEventModal.style.display = "none");
-                } else {
-                    firebase.database().ref('events').push(newEventData)
-                        .then(() => addEventModal.style.display = "none");
-                }
-            });
-            
-            document.getElementById('team-sheet-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const formData = new FormData(event.target);
-                const eventId = formData.get('eventId');
-                const uniName = formData.get('uniName');
-                const teamSheetText = formData.get('teamSheetText');
-
-                if (!eventId || !uniName) return alert('Error: Missing event data.');
-
-                const dbPath = `events/${eventId}/teamSheets/${uniName}`;
-                firebase.database().ref(dbPath).set(teamSheetText)
-                    .then(() => teamSheetModal.style.display = 'none')
-                    .catch(error => alert('Failed to save team sheet. Error: ' + error.message));
-            });
-            
-            document.getElementById('bulk-add-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const fileInput = document.getElementById('csv-file-input');
-                if (fileInput.files.length === 0) return alert('Please select a CSV file to upload.');
-                Papa.parse(fileInput.files[0], {
-                    skipEmptyLines: true,
-                    complete: (results) => {
-                        const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
-                        let studentsToAdd = [];
-                        let skippedRows = 0;
-                        results.data.forEach(row => {
-                            const name = row[0] ? row[0].trim() : '';
-                            const uni = row[1] ? row[1].trim() : '';
-                            if (name && uni && validUnis.includes(uni)) {
-                                studentsToAdd.push({ name, uni });
-                            } else {
-                                skippedRows++;
-                            }
-                        });
-                        if(studentsToAdd.length === 0) return alert(`Processing complete. Found ${results.data.length} row(s). ${skippedRows} row(s) were skipped due to incorrect formatting. No valid students were added.`);
-                        const pushPromises = studentsToAdd.map(student => firebase.database().ref('students').push(student));
-                        Promise.all(pushPromises)
-                            .then(() => {
-                                bulkAddModal.style.display = 'none';
-                                alert(`Successfully added ${studentsToAdd.length} students.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
-                            })
-                            .catch(error => alert('An error occurred: ' + error.message));
-                    }
-                });
-            });
-            
-            document.getElementById('bulk-add-events-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const fileInput = document.getElementById('csv-events-file-input');
-                if (fileInput.files.length === 0) return alert('Please select a CSV file.');
-                Papa.parse(fileInput.files[0], {
-                    skipEmptyLines: true,
-                    complete: (results) => {
-                        const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
-                        let eventsToAdd = [];
-                        let skippedRows = 0;
-                        const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-
-                        results.data.forEach(row => {
-                            const title = row[0] ? row[0].trim() : '';
-                            const date = row[1] ? row[1].trim() : '';
-                            const unisRaw = row[2] ? row[2].trim() : '';
-                            
-                            const dateMatch = date.match(dateRegex);
-                            const eventUnis = unisRaw ? unisRaw.split(',').map(u => u.trim()).filter(u => validUnis.includes(u)) : [];
-
-                            if (title && dateMatch && eventUnis.length > 0) {
-                                const formattedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
-                                eventsToAdd.push({ title, date: formattedDate, unis: eventUnis });
-                            } else {
-                                skippedRows++;
-                            }
-                        });
-
-                        if(eventsToAdd.length === 0) return alert(`No valid events found. ${skippedRows} row(s) were skipped due to missing info, invalid date format (DD/MM/YYYY), or invalid universities.`);
-                        const pushPromises = eventsToAdd.map(event => firebase.database().ref('events').push(event));
-                        Promise.all(pushPromises)
-                            .then(() => {
-                                bulkAddEventsModal.style.display = 'none';
-                                alert(`Successfully added ${eventsToAdd.length} events.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
-                            })
-                            .catch(error => alert('An error occurred: ' + error.message));
-                    }
-                });
-            });
-            
-            document.getElementById('recipient-input').addEventListener('keyup', () => { updateAutocomplete(document.getElementById('recipient-input').value); });
-            document.getElementById('recipient-container').addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove-tag')) {
-                    const { id } = e.target.dataset;
-                    shoutoutRecipients = shoutoutRecipients.filter(r => (r.id || r.name) !== id);
-                    renderRecipientTags();
-                } else {
-                    document.getElementById('recipient-input').focus();
-                }
-            });
-            document.getElementById('autocomplete-results').addEventListener('click', (e) => {
-                const item = e.target.closest('.autocomplete-item');
-                if (!item) return;
-                const { type, id, name } = item.dataset;
-                shoutoutRecipients.push(type === 'student' ? { type, id, name } : { type, name });
-                document.getElementById('recipient-input').value = '';
-                updateAutocomplete('');
-                renderRecipientTags();
-                document.getElementById('recipient-input').focus();
-            });
-            
-            document.getElementById('prev-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() - 7); renderCalendar(); });
-            document.getElementById('next-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() + 7); renderCalendar(); });
-            document.getElementById('this-week-btn').addEventListener('click', () => { currentCalendarDate = new Date(); renderCalendar(); });
-
-            window.addEventListener('click', (event) => {
-                if (event.target.classList.contains('modal')) {
-                    event.target.style.display = "none";
-                }
-            });
-            
+            // Helper Functions
             function renderManageStudentsModal(searchTerm = '') {
                 const listEl = document.getElementById('student-list');
                 const lowerSearchTerm = searchTerm.toLowerCase();
@@ -1379,16 +1439,23 @@
                 if(!listEl) return;
                 let eventsHTML = '';
 
+                if (allEvents.length === 0) {
+                    listEl.innerHTML = '<p class="no-events" style="text-align: center; padding: 20px;">No events to manage.</p>';
+                    return;
+                }
+
                 [...allEvents]
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .forEach(event => {
                         const eventDate = new Date(event.date + 'T00:00:00');
                         const formattedDate = eventDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                        const unisText = Array.isArray(event.unis) ? event.unis.join(', ') : 'No universities listed';
+                        
                         eventsHTML += `
                             <div class="management-list-item">
                                 <div>
                                     <strong>${event.title}</strong>
-                                    <small style="display: block; opacity: 0.7;">${formattedDate} - (${event.unis.join(', ')})</small>
+                                    <small style="display: block; opacity: 0.7;">${formattedDate} - (${unisText})</small>
                                 </div>
                                 <div class="management-list-actions">
                                     <button class="admin-icon edit-event-btn" data-event-id="${event.id}">✏️ Edit</button>
@@ -1421,32 +1488,12 @@
                     document.getElementById('event-id-input').value = '';
                     eventDatepicker.clear();
                 }
-                addEventModal.style.display = 'block';
+                document.getElementById('add-event-modal').style.display = 'block';
             }
             
-            try {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
-                    authDomain: "piosf-7ab81.firebaseapp.com",
-                    databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
-                    projectId: "piosf-7ab81",
-                    storageBucket: "piosf-7ab81.appspot.com",
-                    messagingSenderId: "198847746183",
-                    appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
-                };
-                firebase.initializeApp(firebaseConfig);
-                const database = firebase.database();
-
-                database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderShoutoutUI(); });
-                database.ref('shoutouts').on('value', (snapshot) => { const data = snapshot.val() || {}; allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); renderShoutoutUI(); });
-                database.ref('events').on('value', (snapshot) => { const data = snapshot.val() || {}; allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderCalendar(); renderManageEventsModal(); });
-            } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                alert("Could not connect to the database. Check console for details.");
-            }
-
+            // --- START APP ---
             displayCurrentDate();
-            setupPermissions();
+            setupEventListeners();
             eventDatepicker = flatpickr("#event-date-input", { dateFormat: "Y-m-d", altInput: true, altFormat: "F j, Y", });
         });
     </script>
