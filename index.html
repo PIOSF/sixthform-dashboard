@@ -14,12 +14,13 @@
 const firebaseConfig = {
   apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
   authDomain: "piosf-7ab81.firebaseapp.com",
-  databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
+  databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com", // <- no :null
   projectId: "piosf-7ab81",
   storageBucket: "piosf-7ab81.firebasestorage.app",
   messagingSenderId: "198847746183",
   appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
@@ -207,3 +208,4 @@ renderBars();
 </script>
 </body>
 </html>
+
