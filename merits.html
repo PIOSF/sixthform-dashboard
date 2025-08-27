@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ark Pioneer Sixth Form Dashboard</title>
+<style>
+  /* ---------------- Banner ---------------- */
+  body { margin:0; font-family: Georgia, serif; background:#f5f5f5; }
+  #banner {
+    position: sticky; top:0; width:100%;
+    background:#001f5b; color:white; padding:15px; font-size:24px; font-weight:normal;
+    display:flex; justify-content:center; align-items:center; z-index:1000;
+  }
+  #banner span.sixthform { font-weight:bold; font-style:italic; }
+  #banner span.dashboard { color:red; margin-left:10px; }
+
+  /* ---------------- Layout ---------------- */
+  #container { display:flex; justify-content:space-around; margin-top:20px; }
+  .section { background:white; padding:15px; border-radius:5px; flex:1; margin:5px; min-width:250px; }
+  .section h2 { text-align:center; }
+
+  /* ---------------- Calendar ---------------- */
+  table.calendar { width:100%; border-collapse:collapse; }
+  table.calendar th, table.calendar td { border:1px solid #ccc; padding:5px; text-align:center; }
+  .event { padding:2px 4px; border-radius:3px; color:white; margin:1px; display:block; font-size:12px; position:relative; }
+  .event button.delete { position:absolute; top:0; right:0; background:red; color:white; border:none; cursor:pointer; font-size:10px; }
+
+  /* ---------------- Bar chart ---------------- */
+  #uniChart { display:flex; justify-content:space-around; align-items:flex-end; height:200px; margin-top:20px; }
+  .bar { width:50px; text-align:center; position:relative; margin:0 10px; }
+  .bar div { width:100%; position:absolute; bottom:0; text-align:center; font-weight:bold; color:white; display:flex; justify-content:center; align-items:flex-end; }
+  .barLabel { writing-mode: vertical-rl; transform: rotate(180deg); margin-bottom:2px; font-weight:bold; }
+
+  /* ---------------- Top students ---------------- */
+  table.students { width:100%; border-collapse:collapse; }
+  table.students th, table.students td { border:1px solid #ccc; padding:5px; text-align:center; }
+
+  /* ---------------- Login/Logout ---------------- */
+  #loginBox, #logoutBox, #shoutoutBox, #adminBox { margin:10px; padding:10px; background:#eee; border-radius:5px; }
+  input, select, button { margin:3px; padding:5px; }
+
+</style>
+</head>
+<body>
+
+<!-- ---------------- Banner ---------------- -->
+<div id="banner">
+  Ark Pioneer <span class="sixthform">Sixth Form</span> <span class="dashboard">Dashboard</span>
+</div>
+
+<!-- ---------------- Login ---------------- -->
+<div id="loginBox">
+  <input type="text" id="userInput" placeholder="Username">
+  <input type="password" id="passInput" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+<div id="logoutBox" style="display:none;">
+  <span id="loggedInAs"></span>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- ---------------- Main Sections ---------------- -->
+<div id="container">
+  <!-- Left: Calendar -->
+  <div class="section" id="calendarSection">
+    <h2>Sixth Form Calendar</h2>
+    <table class="calendar">
+      <thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr></thead>
+      <tbody id="calendarBody"><!-- Calendar rows added by JS --></tbody>
+    </table>
+    <div id="addEventBox" style="display:none;">
+      <input type="text" id="eventText" placeholder="Event description">
+      <label><input type="checkbox" class="uniCheckbox" value="Edinburgh">Edinburgh</label>
+      <label><input type="checkbox" class="uniCheckbox" value="Manchester">Manchester</label>
+      <label><input type="checkbox" class="uniCheckbox" value="Oxford">Oxford</label>
+      <label><input type="checkbox" class="uniCheckbox" value="Warwick">Warwick</label>
+      <input type="date" id="eventDate">
+      <button onclick="saveEvent()">Add Event</button>
+    </div>
+    <button onclick="toggleAddEventBox()">New Event</button>
+  </div>
+
+  <!-- Middle: University Chart -->
+  <div class="section">
+    <h2>University Table</h2>
+    <div id="uniChart">
+      <div class="bar" id="EdinburghBar"><div style="background:red; height:0%;">0<span class="barLabel">Edinburgh</span></div></div>
+      <div class="bar" id="ManchesterBar"><div style="background:deeppink; height:0%;">0<span class="barLabel">Manchester</span></div></div>
+      <div class="bar" id="OxfordBar"><div style="background:blue; height:0%;">0<span class="barLabel">Oxford</span></div></div>
+      <div class="bar" id="WarwickBar"><div style="background:purple; height:0%;">0<span class="barLabel">Warwick</span></div></div>
+    </div>
+  </div>
+
+  <!-- Right: Top Students -->
+  <div class="section">
+    <h2>Top Students</h2>
+    <table class="students" id="studentTable">
+      <thead><tr><th>Rank</th><th>Name</th><th>Shoutouts</th></tr></thead>
+      <tbody><!-- Students added by JS --></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ---------------- Shoutout Box ---------------- -->
+<div id="shoutoutBox" style="display:none;">
+  <input type="text" id="shoutInput" placeholder="Student or group names">
+  <button onclick="saveShoutouts()">Save Shoutout</button>
+</div>
+
+<!-- ---------------- Admin Box ---------------- -->
+<div id="adminBox" style="display:none;">
+  <h3>Admin Panel</h3>
+  <input type="text" id="newStudent" placeholder="New student name">
+  <select id="newStudentUni">
+    <option value="Edinburgh">Edinburgh</option>
+    <option value="Manchester">Manchester</option>
+    <option value="Oxford">Oxford</option>
+    <option value="Warwick">Warwick</option>
+  </select>
+  <button onclick="addStudent()">Add Student</button>
+  <h4>Existing Students</h4>
+  <table id="adminStudentTable">
+    <thead><tr><th>Name</th><th>University</th><th>Shoutouts</th><th>Actions</th></tr></thead>
+    <tbody><!-- Populated by JS --></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Firebase ---------------- -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  // 🔹 Replace this with your Firebase project config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // ---------------- Example data ----------------
+  const exampleStudents = [
+    {name:"Alice", uni:"Edinburgh", shoutouts:2},
+    {name:"Bob", uni:"Manchester", shoutouts:3},
+    {name:"Charlie", uni:"Oxford", shoutouts:1},
+    {name:"Diana", uni:"Warwick", shoutouts:0}
+  ];
+
+  // ---------------- Local state ----------------
+  let currentUser = null;
+  let userRole = null; // "teacher" or "admin"
+
+  // ---------------- Login/Logout ----------------
+  function login() {
+    const user = document.getElementById('userInput').value.trim();
+    const pass = document.getElementById('passInput').value;
+    // Simple example, replace with Firebase auth for production
+    if(user === "teacher" && pass === "1234") { userRole="teacher"; currentUser=user; } 
+    else if(user==="admin" && pass==="1234") { userRole="admin"; currentUser=user; }
+    else { alert("Wrong credentials"); return; }
+
+    document.getElementById('loginBox').style.display="none";
+    document.getElementById('logoutBox').style.display="block";
+    document.getElementById('loggedInAs').innerText="Logged in as "+userRole;
+    document.getElementById('shoutoutBox').style.display=(userRole==="teacher" || userRole==="admin")?"block":"none";
+    document.getElementById('adminBox').style.display=(userRole==="admin")?"block":"none";
+
+    renderStudents();
+    renderBars();
+    renderCalendar();
+  }
+
+  function logout() {
+    currentUser=null; userRole=null;
+    document.getElementById('loginBox').style.display="block";
+    document.getElementById('logoutBox').style.display="none";
+    document.getElementById('shoutoutBox').style.display="none";
+    document.getElementById('adminBox').style.display="none";
+    document.getElementById('passInput').value="";
+  }
+
+  // ---------------- Render students ----------------
+  function renderStudents() {
+    const tbody=document.querySelector("#studentTable tbody");
+    tbody.innerHTML="";
+    const sorted = exampleStudents.sort((a,b)=>b.shoutouts-a.shoutouts);
+    sorted.forEach((s,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i+1}</td><td>${s.name}</td><td>${s.shoutouts}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    const adminTbody=document.querySelector("#adminStudentTable tbody");
+    adminTbody.innerHTML="";
+    exampleStudents.forEach((s,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${s.name}</td><td>${s.uni}</td><td>${s.shoutouts}</td>
+      <td><button onclick="deleteStudent('${s.name}')">Delete</button></td>`;
+      adminTbody.appendChild(tr);
+    });
+  }
+
+  // ---------------- Render bar chart ----------------
+  function renderBars() {
+    const totals = {Edinburgh:0, Manchester:0, Oxford:0, Warwick:0};
+    exampleStudents.forEach(s=>{ totals[s.uni]+=s.shoutouts; });
+    ["Edinburgh","Manchester","Oxford","Warwick"].forEach(u=>{
+      const barDiv=document.querySelector(`#${u}Bar div`);
+      const max = Math.max(...Object.values(totals),1);
+      barDiv.style.height=(totals[u]/max*100)+"%";
+      barDiv.innerHTML=`${totals[u]}<span class="barLabel">${u}</span>`;
+    });
+  }
+
+  // ---------------- Shoutouts ----------------
+  function saveShoutouts() {
+    const val = document.getElementById('shoutInput').value.trim();
+    if(!val) return;
+    const names = val.split(",").map(s=>s.trim());
+    names.forEach(n=>{
+      const s = exampleStudents.find(st=>st.name===n);
+      if(s) s.shoutouts+=1;
+    });
+    renderStudents();
+    renderBars();
+    document.getElementById('shoutInput').value="";
+    alert(names.join(", ")+" have just received shoutouts!");
+  }
+
+  // ---------------- Admin ----------------
+  function addStudent() {
+    const name=document.getElementById('newStudent').value.trim();
+    const uni=document.getElementById('newStudentUni').value;
+    if(!name) return;
+    exampleStudents.push({name,uni,shoutouts:0});
+    document.getElementById('newStudent').value="";
+    renderStudents();
+  }
+
+  function deleteStudent(name){
+    const idx = exampleStudents.findIndex(s=>s.name===name);
+    if(idx>=0) exampleStudents.splice(idx,1);
+    renderStudents();
+  }
+
+  // ---------------- Calendar ----------------
+  function renderCalendar() {
+    const tbody=document.getElementById('calendarBody');
+    tbody.innerHTML="";
+    for(let w=0;w<5;w++){ // 5 weeks example
+      const tr=document.createElement('tr');
+      for(let d=1;d<=5;d++){
+        const td=document.createElement('td');
+        td.innerText=d+w*5+1+"th";
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+  }
+  function toggleAddEventBox() {
+    const box=document.getElementById('addEventBox');
+    box.style.display=(box.style.display==="none")?"block":"none";
+  }
+  function saveEvent() {
+    const text=document.getElementById('eventText').value;
+    const date=document.getElementById('eventDate').value;
+    const checkboxes=document.querySelectorAll('.uniCheckbox:checked');
+    if(!text||!date||checkboxes.length===0) return;
+    const unis=[...checkboxes].map(c=>c.value);
+    alert(text+" added for "+unis.join(", "));
+    document.getElementById('eventText').value="";
+    document.getElementById('eventDate').value="";
+  }
+
+</script>
+
+</body>
+</html>
