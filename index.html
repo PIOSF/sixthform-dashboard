@@ -292,7 +292,7 @@
             const mainLoginBtn = document.getElementById('login-btn');
             const loginModal = document.getElementById('login-modal');
             const addShoutoutModal = document.getElementById('add-shoutout-modal');
-            const addStudentModal = document.getElementById('add-student-modal'); // New modal element
+            const addStudentModal = document.getElementById('add-student-modal');
 
             // --- DEFINE EVENT HANDLERS (what happens on click, etc.) ---
             function handleMainLoginClick() {
@@ -331,7 +331,6 @@
             addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = 'none');
             document.getElementById('add-shoutout-btn').addEventListener('click', handleAddShoutoutClick);
             
-            // New Listeners for Add Student
             addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = 'none');
             document.getElementById('add-student-btn').addEventListener('click', handleAddStudentClick);
             
@@ -341,37 +340,35 @@
             window.addEventListener('click', (event) => {
                 if (event.target == addShoutoutModal) addShoutoutModal.style.display = "none";
                 if (event.target == loginModal) loginModal.style.display = "none";
-                if (event.target == addStudentModal) addStudentModal.style.display = "none"; // New
+                if (event.target == addStudentModal) addStudentModal.style.display = "none";
             });
 
             document.getElementById('shoutout-form').addEventListener('submit', (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.target);
-                const shoutoutData = {
-                    studentId: formData.get('student'),
-                    reason: formData.get('reason'),
-                    teacher: formData.get('initials').toUpperCase(),
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                };
+                const shoutoutData = { studentId: formData.get('student'), reason: formData.get('reason'), teacher: formData.get('initials').toUpperCase(), timestamp: firebase.database.ServerValue.TIMESTAMP };
                 firebase.database().ref('shoutouts').push(shoutoutData)
                     .then(() => { addShoutoutModal.style.display = "none"; })
-                    .catch(console.error);
+                    .catch((error) => {
+                        console.error("Error adding shoutout:", error);
+                        alert("Failed to add shoutout. Error: " + error.message);
+                    });
             });
 
-            // New: Add Student Form Submission
             document.getElementById('add-student-form').addEventListener('submit', (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.target);
-                const newStudent = {
-                    name: formData.get('studentName'),
-                    uni: formData.get('uni')
-                };
+                const newStudent = { name: formData.get('studentName'), uni: formData.get('uni') };
                 firebase.database().ref('students').push(newStudent)
                     .then(() => {
                         addStudentModal.style.display = "none";
                         alert(`Student "${newStudent.name}" added successfully!`);
                     })
-                    .catch(console.error);
+                    .catch((error) => {
+                        console.error("Error adding student:", error);
+                        // THIS IS THE NEW, IMPORTANT PART FOR DEBUGGING
+                        alert("FAILED TO ADD STUDENT.\n\nError: " + error.message + "\n\nPlease check your Firebase Database rules.");
+                    });
             });
 
             // --- FIREBASE CONNECTION ---
@@ -390,26 +387,13 @@
                 const database = firebase.database();
 
                 // Start listening for data
-                database.ref('students').on('value', (snapshot) => {
-                    const data = snapshot.val() || {};
-                    allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    populateStudentDropdown();
-                    renderShoutoutUI();
-                });
-                database.ref('shoutouts').on('value', (snapshot) => {
-                    const data = snapshot.val() || {};
-                    allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) }));
-                    renderShoutoutUI();
-                });
-                database.ref('events').on('value', (snapshot) => {
-                    const data = snapshot.val() || {};
-                    allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    renderCalendar();
-                });
+                database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); populateStudentDropdown(); renderShoutoutUI(); });
+                database.ref('shoutouts').on('value', (snapshot) => { const data = snapshot.val() || {}; allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); renderShoutoutUI(); });
+                database.ref('events').on('value', (snapshot) => { const data = snapshot.val() || {}; allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderCalendar(); });
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                alert("Could not connect to the database. Please check your Firebase configuration and internet connection. The dashboard will not function correctly.");
+                alert("Could not connect to the database. Please check your Firebase configuration and internet connection.");
             }
 
             // --- INITIAL PAGE LOAD ---
