@@ -4,26 +4,32 @@
 <meta charset="UTF-8">
 <title>Ark Pioneer Sixth Form Dashboard</title>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+<!-- Firebase App (required) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- Firebase Auth (if using logins) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 
 <!-- Firebase Config -->
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
-  authDomain: "piosf-7ab81.firebaseapp.com",
-  databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com", // <- no :null
-  projectId: "piosf-7ab81",
-  storageBucket: "piosf-7ab81.firebasestorage.app",
-  messagingSenderId: "198847746183",
-  appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
-};
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
+    authDomain: "piosf-7ab81.firebaseapp.com",
+    databaseURL: "https://piosf-7ab81-default-rtdb.firebaseio.com",
+    projectId: "piosf-7ab81",
+    storageBucket: "piosf-7ab81.appspot.com",
+    messagingSenderId: "198847746183",
+    appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
+  };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database(); // Realtime Database reference
 </script>
+
 
 <style>
 body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
@@ -208,4 +214,5 @@ renderBars();
 </script>
 </body>
 </html>
+
 
