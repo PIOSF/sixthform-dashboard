@@ -619,7 +619,6 @@
                 <label for="password-input">Password:</label>
                 <input type="password" id="password-input" required>
                 <button type="submit" class="admin-btn">Login</button>
-                <button type="button" id="logout-btn" class="admin-btn">Logout (Guest View)</button>
             </form>
         </div>
     </div>
@@ -1091,11 +1090,6 @@
                         });
                 });
                 
-                document.getElementById('logout-btn').addEventListener('click', () => {
-                    firebase.auth().signOut();
-                    loginModal.style.display = 'none';
-                });
-
                 // Modal Close Buttons
                 addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = "none");
                 addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = "none");
