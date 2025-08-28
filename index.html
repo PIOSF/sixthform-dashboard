@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ark Pioneer Sixth Form Dashboard</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -61,13 +62,13 @@
         .header-left {
             display: flex;
             align-items: center;
-            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            flex-wrap: wrap; 
         }
 
         .title-container {
             display: flex;
             align-items: baseline;
-            flex-wrap: wrap; /* Allows "Dashboard" to wrap cleanly below the main title */
+            flex-wrap: wrap; 
         }
 
         .header-title {
@@ -75,9 +76,9 @@
             font-size: 2.5em;
             color: white;
             font-weight: normal;
-            margin: 0; /* Removes default h1 margin */
-            padding: 0; /* Removes default h1 padding */
-            white-space: nowrap; /* Prevents the main title from breaking into multiple lines */
+            margin: 0; 
+            padding: 0; 
+            white-space: nowrap; 
         }
 
         .header-title i { font-weight: normal; font-style: italic; }
@@ -465,6 +466,56 @@
 
         /* --- Login Modal Styling --- */
         #logout-btn { background-color: #7f8c8d; }
+        
+        /* --- Responsive Styles for Mobile --- */
+        @media (max-width: 768px) {
+            /* Make main layout a single column */
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto; /* Allow content to determine height */
+                padding: 15px;
+            }
+
+            /* Make shoutout section a single column */
+            .shoutouts-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Adjust header for small screens */
+            header {
+                flex-direction: column;
+                height: auto; /* Allow header to grow */
+                padding: 10px 15px;
+                position: static; /* Let it be part of the page flow */
+            }
+            
+            body {
+                padding-top: 0; /* Remove padding since header is no longer fixed */
+            }
+
+            .header-left {
+                margin-bottom: 10px;
+                justify-content: center;
+                text-align: center;
+                width: 100%;
+            }
+
+            .header-title {
+                font-size: 1.8em; /* Reduce font size */
+            }
+
+            .header-date {
+                margin-left: 0;
+                margin-top: 5px;
+                width: 100%; /* Take full width for centering */
+            }
+
+            /* Reduce banner font size */
+            .content-banner {
+                font-size: 1.8em;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1016,7 +1067,7 @@
                 
                 document.getElementById('login-form').addEventListener('submit', (event) => {
                     event.preventDefault();
-                    const username = document.getElementById('username-input').value.trim();
+                    const username = document.getElementById('username-input').value.trim().toLowerCase(); // Make it case-insensitive
                     const password = document.getElementById('password-input').value.trim();
                     const auth = firebase.auth();
                     const database = firebase.database();
