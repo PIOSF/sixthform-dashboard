@@ -24,722 +24,404 @@
             --text-color: #e0e0e0;
             --header-blue: #0f3460;
             --pink-accent: #e94560;
-            --header-height: 80px;
-            --dark-green-fill: #164A41;
+            --danger-red: #c0392b;
+            --danger-red-hover: #a93226;
+            --header-height: 65px;
             
-            /* Lighter University Colours */
-            --edinburgh: #FF4747;
+            /* University colors */
+            --bath: #87CEEB;
+            --edinburgh: #DC143C;
             --manchester: #FFD700;
-            --oxford: #5CD2E6;
-            --warwick: #B15DFF;
-        }
+            --oxford: #6495ED;
+            --warwick: #BA55D3;
+            --st-andrews-deep: #1A7974;
+            --bristol-deep: #B33000;
+            --cambridge-deep: #8E6C18;
+            --exeter-deep: #00008B; /* Dark Blue */
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding-top: var(--header-height);
+            --top-student-green: #4CAF50;
         }
-
-        /* --- Header --- */
-        header {
-            background-color: var(--header-blue);
-            padding: 0 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid var(--pink-accent);
-            height: var(--header-height);
-            box-sizing: border-box;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap; 
-        }
-
-        .title-container {
-            display: flex;
-            align-items: baseline;
-            flex-wrap: wrap; 
-        }
-
-        .header-title {
-            font-family: 'Georgia', serif;
-            font-size: 2.5em;
-            color: white;
-            font-weight: normal;
-            margin: 0; 
-            padding: 0; 
-            white-space: nowrap; 
-        }
-
+        html { height: 100vh; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 10px; }
+        *::-webkit-scrollbar-thumb { background-color: var(--pink-accent); border-radius: 10px; border: 2px solid var(--bg-color); }
+        *::-webkit-scrollbar-thumb:hover { background-color: #c43751; }
+        header { background-color: var(--header-blue); padding: 0 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--pink-accent); height: var(--header-height); box-sizing: border-box; width: 100%; z-index: 1000; flex-shrink: 0; gap: 20px; }
+        .header-left { display: flex; align-items: center; gap: 25px; min-width: 0; }
+        .header-right { display: flex; gap: 15px; align-items: center; flex-shrink: 0; }
+        #admin-panel-btn, #log-shoutout-btn { padding: 8px 16px; background-color: #2c3e50; border: none; color: white; font-size: 0.9em; cursor: pointer; border-radius: 5px; transition: background-color: 0.3s; }
+        #admin-panel-btn:hover, #log-shoutout-btn:hover { background-color: #34495e; }
+        .title-container { display: flex; align-items: baseline; }
+        .header-title { font-family: 'Georgia', serif; font-size: 2em; color: white; font-weight: normal; margin: 0; padding: 0; white-space: nowrap; }
         .header-title i { font-weight: normal; font-style: italic; }
-
-        .dashboard-font {
-            font-family: 'Pacifico', cursive;
-            color: var(--pink-accent);
-            font-size: 1.2em;
-            margin-left: 15px;
-            font-weight: normal;
-        }
-
-        .header-date {
-            font-size: 1.1rem;
-            color: var(--text-color);
-            margin-left: 25px;
-            font-style: italic;
-            opacity: 0.9;
-            white-space: nowrap;
-        }
-
-        #login-btn {
-            padding: 10px 20px;
-            background-color: var(--pink-accent);
-            border: none;
-            color: white;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            flex-shrink: 0;
-        }
-
+        .dashboard-font { font-family: 'Pacifico', cursive; color: var(--pink-accent); font-size: 1.1em; margin-left: 15px; font-weight: normal; white-space: nowrap; }
+        #login-btn { padding: 8px 16px; background-color: var(--pink-accent); border: none; color: white; font-size: 0.9em; cursor: pointer; border-radius: 5px; transition: background-color: 0.3s; flex-shrink: 0; white-space: nowrap; }
         #login-btn:hover { background-color: #c43751; }
-        
-        /* --- Main Content Layout --- */
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 2.5fr;
-            gap: 25px;
-            padding: 25px;
-            height: calc(100vh - var(--header-height) - 50px);
-        }
-
-        .content-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            min-height: 0;
-        }
-
-        .content-banner {
-            text-align: center;
-            font-size: 2.2em;
-            font-weight: bold;
-            color: var(--pink-accent);
-            margin: 0;
-        }
-
-        .shoutouts-columns {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 25px;
-            flex-grow: 1;
-            min-height: 0;
-        }
-        
-        .column {
-            background-color: var(--card-color);
-            border-radius: 10px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            min-height: 0;
-            flex-grow: 1;
-        }
-
-        .column h2 {
-            text-align: center;
-            margin-top: 0;
-            color: var(--text-color);
-            border-bottom: 2px solid var(--pink-accent);
-            padding-bottom: 10px;
-            flex-shrink: 0;
-        }
-        
-        .admin-btn {
-            padding: 10px; width: 100%; background-color: var(--pink-accent);
-            border: none; color: white; font-size: 1em; cursor: pointer;
-            border-radius: 5px; margin-top: 10px; transition: background-color 0.3s;
-        }
-        .admin-btn:hover { background-color: #c43751; }
+        #header-event-carousel { background-color: #f0f0f0; border: 1px solid rgba(0,0,0,0.1); color: var(--bg-color); border-radius: 8px; padding: 5px 10px; display: flex; align-items: center; gap: 8px; width: 400px; flex-shrink: 1; min-width: 200px; }
+        .admin-view #header-event-carousel { width: 300px; } /* Makes event box smaller in admin view */
+        #header-event-display { font-size: 0.95em; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; flex-grow: 1; order: 1; }
+        #header-event-carousel .event-arrow { background: none; border: 1px solid var(--pink-accent); color: var(--pink-accent); border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; order: 2; }
+        #header-event-carousel .event-arrow:not(:disabled):hover { background-color: var(--pink-accent); color: white; }
+        #header-event-carousel .event-arrow:disabled { opacity: 0.4; cursor: not-allowed; border-color: #aaa; color: #aaa; }
+        main { display: flex; gap: 20px; padding: 20px; box-sizing: border-box; flex-grow: 1; min-height: 0; }
+        .year-column { display: flex; flex-direction: column; gap: 15px; flex: 1; min-width: 0; }
+        .compact-box { background-color: var(--card-color); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; box-shadow: 0 4px 8px rgba(0,0,0,0.2); min-height: 0; }
+        .compact-box.shoutout-box { flex: 1; }
+        .compact-box.chart-box { flex: 1; }
+        .compact-box h2 { text-align: center; margin-top: 0; color: var(--text-color); border-bottom: 1px solid var(--pink-accent); padding-bottom: 8px; flex-shrink: 0; font-size: 1.2em; margin-bottom: 8px; }
         .hidden { display: none; }
-        .admin-tools {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .admin-tools-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        #doughnut-message {
-             text-align: center; 
-             font-style: italic; 
-             color: var(--pink-accent);
-             font-size: 1.1em;
-             margin: -5px 0 15px 0;
-             font-weight: bold;
-             line-height: 1.4;
-        }
-
-        #uni-chart-container {
-            flex-grow: 1;
-            position: relative;
-            min-height: 0;
-        }
-
-        /* --- Weekly Calendar --- */
-        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
-        .calendar-nav-buttons { display: flex; gap: 5px; }
-        .calendar-nav button { background: none; border: 1px solid var(--pink-accent); color: var(--pink-accent); cursor: pointer; padding: 5px 10px; border-radius: 5px; }
-        #week-view {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        .week-day {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 5px;
-        }
-        .week-day:last-child {
-            border-bottom: none;
-        }
-        .day-header {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .day-header .date {
-            font-weight: normal;
-            opacity: 0.7;
-            margin-left: 8px;
-            font-size: 0.9em;
-        }
-        .events-list {
-            list-style: none;
-            padding-left: 0;
-            margin: 5px 0 0 0;
-        }
-        .events-list li {
-            font-size: 0.9em;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
-            background-color: black;
-            color: white;
-            font-weight: bold;
-            border: 4px solid transparent;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-        .event-details {
-            flex-grow: 1;
-        }
-        .event-actions {
-            display: flex;
-            gap: 5px;
-            flex-shrink: 0;
-        }
-        .ts-btn {
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-weight: bold;
-            font-size: 0.8em;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        .ts-btn:hover {
-            transform: scale(1.1);
-        }
-        .ts-btn.edinburgh { background-color: var(--edinburgh); color: white; }
-        .ts-btn.manchester { background-color: var(--manchester); color: #333; }
-        .ts-btn.oxford { background-color: var(--oxford); color: #333; }
-        .ts-btn.warwick { background-color: var(--warwick); color: white; }
-        .ts-btn.has-text {
-            background-color: #28a745;
-            color: white;
-            font-size: 1.2em;
-        }
-        .event-unis {
-            display: block;
-            font-size: 0.8em;
-            opacity: 0.9;
-            margin-top: 4px;
-            font-weight: normal;
-        }
-        .no-events {
-            font-style: italic;
-            opacity: 0.5;
-            font-size: 0.9em;
-            padding-left: 15px;
-        }
-
-        /* --- Shoutouts --- */
-        #leaderboard { margin-bottom: 20px; flex-shrink: 0; }
-        .leaderboard-entry { display: flex; justify-content: space-between; padding: 10px; margin-bottom: 5px; border-radius: 5px; background-color: rgba(255,255,255,0.05); }
-        #shoutout-feed { flex-grow: 1; overflow-y: auto; padding-right: 10px; }
-        #shoutout-feed::-webkit-scrollbar { width: 8px; }
-        #shoutout-feed::-webkit-scrollbar-track { background: var(--card-color); }
-        #shoutout-feed::-webkit-scrollbar-thumb { background-color: var(--pink-accent); border-radius: 10px; }
-        
-        #week-view::-webkit-scrollbar {
-            width: 8px;
-        }
-        #week-view::-webkit-scrollbar-track {
-            background: var(--card-color);
-        }
-        #week-view::-webkit-scrollbar-thumb {
-            background-color: var(--pink-accent);
-            border-radius: 10px;
-        }
-
-        .shoutout-card {
-            border-radius: 8px;
-            padding: 8px 12px 32px 12px;
-            margin-bottom: 10px;
-            background-color: var(--dark-green-fill);
-            border: 4px solid;
-            position: relative;
-        }
-        .shoutout-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .shoutout-card-header .student-name { font-size: 1.1em; font-weight: bold; }
-        .shoutout-card .reason { font-size: 0.9em; margin-top: 0; margin-bottom: 5px; }
-        .shoutout-card-footer { font-size: 0.8em; opacity: 0.7; }
-
-        .border-Edinburgh { border-color: var(--edinburgh); }
-        .border-Manchester { border-color: var(--manchester); }
-        .border-Oxford { border-color: var(--oxford); }
-        .border-Warwick { border-color: var(--warwick); }
-
-        .admin-icon {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            font-size: 1.1em;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-        .admin-icon:hover { opacity: 1; }
-        .shoutout-admin-icons {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            display: flex;
-            gap: 8px;
-        }
-        .event-admin-icons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-left: 8px;
-            border-left: 1px solid rgba(255,255,255,0.2);
-            margin-left: 8px;
-        }
-
-        /* --- Modal --- */
+        #uni-chart-container-y12, #uni-chart-container-y13 { position: relative; flex-grow: 1; }
+        .no-events, .no-data { font-style: italic; opacity: 0.5; font-size: 0.9em; padding: 10px; text-align: center; width: 100%; }
+        .shoutout-section-container { display: flex; flex-grow: 1; min-height: 0; }
+        .shoutout-carousel-feed { display: flex; flex-wrap: wrap; gap: 8px; flex-grow: 1; align-content: flex-start; overflow-y: auto; padding-right: 5px; }
+        .shoutout-carousel-feed.empty-feed { align-items: center; justify-content: center; }
+        .shoutout-card { border-radius: 5px; padding: 4px 8px 24px 8px; position: relative; flex-basis: 120px; flex-shrink: 0; flex-grow: 0; color: #1a1a2e; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .shoutout-card-header .student-name { font-size: 0.9em; font-weight: bold; }
+        .shoutout-card .reason { font-size: 0.75em; margin-top: 3px; margin-bottom: 3px; flex-grow: 1; }
+        .shoutout-card-footer { font-size: 0.7em; opacity: 0.8; }
+        .shoutout-card.uni-Bath { background-color: var(--bath); }
+        .shoutout-card.uni-Edinburgh { background-color: var(--edinburgh); }
+        .shoutout-card.uni-Manchester { background-color: var(--manchester); }
+        .shoutout-card.uni-Oxford { background-color: var(--oxford); }
+        .shoutout-card.uni-Warwick { background-color: var(--warwick); }
+        .shoutout-card.uni-St-Andrews { background-color: var(--st-andrews-deep); }
+        .shoutout-card.uni-Bristol { background-color: var(--bristol-deep); }
+        .shoutout-card.uni-Cambridge { background-color: var(--cambridge-deep); }
+        .shoutout-card.uni-Exeter { background-color: var(--exeter-deep); }
+        .shoutout-card.uni-Edinburgh, .shoutout-card.uni-St-Andrews, .shoutout-card.uni-Bristol, .shoutout-card.uni-Cambridge, .shoutout-card.uni-Exeter { color: var(--text-color); }
+        .shoutout-card.top-student { background-color: var(--top-student-green); color: white; }
+        .shoutout-card.top-student .student-name, .shoutout-card.top-student .reason, .shoutout-card.top-student .shoutout-card-footer { color: white; opacity: 1; }
+        .top-student .shoutout-card-header { display: block; }
+        .top-student-badge { font-size: 0.8em; font-weight: bold; display: block; }
+        .shoutout-admin-icons { position: absolute; bottom: 4px; right: 4px; display: flex; gap: 4px; }
+        .admin-icon { background: rgba(0,0,0,0.3); border: none; color: white; cursor: pointer; font-size: 0.9em; opacity: 0.8; transition: opacity 0.2s, background-color 0.2s; padding: 3px 6px; border-radius: 3px; }
+        .admin-icon:hover { opacity: 1; background-color: rgba(0,0,0,0.5); }
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
-        .modal-content { background-color: var(--card-color); margin: 10% auto; padding: 30px; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 500px; border-radius: 10px; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column;}
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-content { background-color: var(--card-color); margin: 5vh auto; padding: 0; border-top: 5px solid var(--pink-accent); width: 80%; max-width: 500px; border-radius: 10px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px 30px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-start; }
+        .modal-header h2 { margin: 0; }
+        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-scroll-content { overflow-y: auto; min-height: 0; padding: 0 30px 30px 30px; flex-grow: 1; }
         .modal-form label { display: block; margin-top: 15px; font-weight: bold; }
         .modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #555; background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box; }
-        .modal-form input[type="text"]:read-only { cursor: pointer; }
-        .modal-form button { width: 100%; margin-top: 20px; }
-        .modal-form small { opacity: 0.7; font-weight: normal; }
-        .modal-form p { line-height: 1.5; }
+        .modal-form button, .admin-panel-group button { width: 100%; margin-top: 20px; }
+        .admin-btn, .management-btn { padding: 10px; background-color: var(--pink-accent); border: none; color: white; font-size: 1em; cursor: pointer; border-radius: 5px; transition: background-color: 0.3s; }
+        .admin-btn:hover, .management-btn:hover { background-color: #c43751; }
+        .admin-btn.danger-btn { background-color: var(--danger-red); }
+        .admin-btn.danger-btn:hover { background-color: var(--danger-red-hover); }
+        .management-btn { background-color: #2c3e50; font-size: 0.8em; padding: 5px 10px; width: auto; margin: 0; }
+        .management-btn:hover { background-color: #34495e; }
+        .admin-panel-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .admin-panel-group button { margin: 0; }
+        .management-list { margin-top: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .management-list-item { display: flex; flex-direction: column; align-items: stretch; padding: 10px; border-radius: 5px; background-color: var(--bg-color); margin-bottom: 8px; }
+        .management-item-info { flex-grow: 1; display: flex; justify-content: space-between; }
+        .management-item-details { font-size: 0.9em; opacity: 0.8; margin-top: 5px; }
+        .management-item-actions { display: flex; gap: 8px; align-self: flex-end; margin-top: 8px; }
+        .student-search-container { position: relative; }
+        #shoutout-student-results { position: absolute; width: 100%; background-color: var(--bg-color); border: 1px solid #555; border-top: none; border-radius: 0 0 5px 5px; max-height: 150px; overflow-y: auto; z-index: 1002; }
+        #shoutout-student-results div { padding: 10px; cursor: pointer; }
+        #shoutout-student-results div:hover { background-color: var(--pink-accent); }
+        #shoutout-student-results div small { opacity: 0.7; margin-left: 8px; }
 
-        .management-list {
-            margin-top: 15px;
-            flex-grow: 1;
-            overflow-y: auto;
+        @media (max-width: 900px) {
+            body { overflow-y: auto; height: auto; }
+            header { position: static; flex-direction: column; height: auto; padding: 10px 15px; }
+            .header-left { margin-bottom: 10px; justify-content: center; text-align: center; width: 100%; flex-direction: column; gap: 10px; }
+            #header-event-carousel { max-width: 100%; min-width: 100%; margin-top: 0; width: 100%; }
+            main { flex-direction: column; height: auto; }
         }
-        .management-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: var(--bg-color);
-            margin-bottom: 8px;
-        }
-        .management-list-actions button {
-            margin-left: 10px;
-        }
-
-        /* --- Checkbox Styling --- */
-        #event-unis-checkboxes {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background-color: var(--bg-color);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #555;
-        }
-        #event-unis-checkboxes label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: normal;
-        }
-        #event-unis-checkboxes input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* --- Recipient Input Styling --- */
-        .recipient-input-wrapper { position: relative; }
-        .recipient-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #555;
-            background-color: var(--bg-color);
-            cursor: text;
-        }
-        .recipient-tag {
-            display: flex;
-            align-items: center;
-            background-color: var(--pink-accent);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }
-        .recipient-tag .remove-tag {
-            margin-left: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        #recipient-input {
-            flex-grow: 1;
-            border: none;
-            background: none;
-            outline: none;
-            color: var(--text-color);
-            padding: 5px;
-            min-width: 150px;
-        }
-        .autocomplete-results {
-            position: absolute;
-            background-color: var(--card-color);
-            border: 1px solid #555;
-            border-top: none;
-            border-radius: 0 0 5px 5px;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1002;
-        }
-        .autocomplete-item {
-            padding: 10px;
-            cursor: pointer;
-        }
-        .autocomplete-item:hover, .autocomplete-item.selected {
-            background-color: var(--pink-accent);
-        }
-        .autocomplete-item .uni-name {
-            font-size: 0.8em;
-            opacity: 0.7;
-        }
-        .autocomplete-item.uni-select {
-            font-weight: bold;
-            color: var(--pink-accent);
-        }
-
-        /* --- Login Modal Styling --- */
-        #logout-btn { background-color: #7f8c8d; }
-        
-        /* --- Responsive Styles for Mobile --- */
-        @media (max-width: 768px) {
-            /* Make main layout a single column */
-            .main-container {
-                grid-template-columns: 1fr;
-                height: auto; /* Allow content to determine height */
-                padding: 15px;
-            }
-
-            /* Make shoutout section a single column */
-            .shoutouts-columns {
-                grid-template-columns: 1fr;
-            }
-            
-            /* Adjust header for small screens */
-            header {
-                flex-direction: column;
-                height: auto; /* Allow header to grow */
-                padding: 10px 15px;
-                position: static; /* Let it be part of the page flow */
-            }
-            
-            body {
-                padding-top: 0; /* Remove padding since header is no longer fixed */
-            }
-
-            .header-left {
-                margin-bottom: 10px;
-                justify-content: center;
-                text-align: center;
-                width: 100%;
-            }
-
-            .header-title {
-                font-size: 1.8em; /* Reduce font size */
-            }
-
-            .header-date {
-                margin-left: 0;
-                margin-top: 5px;
-                width: 100%; /* Take full width for centering */
-            }
-
-            /* Reduce banner font size */
-            .content-banner {
-                font-size: 1.8em;
-            }
-        }
-
     </style>
 </head>
 <body>
-
     <header>
         <div class="header-left">
             <div class="title-container">
                 <h1 class="header-title">Ark Pioneer <i>Sixth Form</i></h1>
                 <span class="dashboard-font">Dashboard</span>
             </div>
-            <span id="current-date-display" class="header-date"></span>
-        </div>
-        <button id="login-btn">Login</button>
-    </header>
-
-    <main class="main-container">
-        <div class="content-wrapper">
-            <h1 class="content-banner">Events</h1>
-            <div class="column">
-                <div class="calendar-nav">
-                    <div class="calendar-nav-buttons">
-                        <button id="prev-week-btn">&lt;</button>
-                        <button id="next-week-btn">&gt;</button>
-                        <button id="this-week-btn">This Week</button>
-                    </div>
-                    <h3 id="week-range-label">Week Range</h3>
-                </div>
-                <div class="admin-tools hidden">
-                    <div class="admin-tools-group">
-                        <button id="add-event-btn" class="admin-btn">Add Event</button>
-                        <button id="bulk-add-events-btn" class="admin-btn">Bulk Add</button>
-                        <button id="manage-events-btn" class="admin-btn">Manage Events</button>
-                    </div>
-                </div>
-                <div id="week-view"></div>
+            <div id="header-event-carousel" class="hidden">
+                <div id="header-event-display"></div>
+                <button class="event-arrow" data-direction="prev">&lt;</button>
+                <button class="event-arrow" data-direction="next">&gt;</button>
             </div>
         </div>
-
-        <div class="content-wrapper">
-            <h1 class="content-banner">Shoutouts</h1>
-            <div class="shoutouts-columns">
-                <div class="column">
-                    <h2>Individual Challenge</h2>
-                    <div class="admin-tools hidden">
-                        <button id="add-shoutout-btn" class="admin-btn">Add Shoutout</button>
-                    </div>
-                    <div id="leaderboard"></div>
-                    <div id="shoutout-feed"></div>
+        <div class="header-right">
+            <button id="log-shoutout-btn" class="hidden">Log Shoutout</button>
+            <button id="admin-panel-btn" class="hidden">Admin Panel</button>
+            <button id="login-btn">Login</button>
+        </div>
+    </header>
+    <main>
+        <div class="year-column">
+            <div class="compact-box shoutout-box">
+                <h2>Year 12 - Recent Shoutouts</h2>
+                <div class="shoutout-section-container">
+                    <div id="shoutout-feed-y12" class="shoutout-carousel-feed"></div>
                 </div>
-                <div class="column">
-                    <h2>University Challenge</h2>
-                    <div class="admin-tools hidden">
-                        <div class="admin-tools-group">
-                           <button id="add-student-btn" class="admin-btn">Add Student</button>
-                           <button id="bulk-add-btn" class="admin-btn">Bulk Add</button>
-                        </div>
-                        <button id="manage-data-btn" class="admin-btn">Manage Students</button>
-                    </div>
-                    <p id="doughnut-message"></p>
-                    <div id="uni-chart-container">
-                        <canvas id="uni-chart"></canvas>
-                    </div>
+            </div>
+            <div class="compact-box chart-box">
+                <h2>University Challenge</h2>
+                <div id="uni-chart-container-y12">
+                    <canvas id="uni-chart-y12"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="year-column">
+            <div class="compact-box shoutout-box">
+                <h2>Year 13 - Recent Shoutouts</h2>
+                <div class="shoutout-section-container">
+                    <div id="shoutout-feed-y13" class="shoutout-carousel-feed"></div>
+                </div>
+            </div>
+            <div class="compact-box chart-box">
+                <h2>University Challenge</h2>
+                <div id="uni-chart-container-y13">
+                    <canvas id="uni-chart-y13"></canvas>
                 </div>
             </div>
         </div>
     </main>
     
-    <div id="add-shoutout-modal" class="modal">
+    <div id="admin-panel-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="shoutout-modal-title">Log a New Shoutout</h2>
-            <form id="shoutout-form" class="modal-form">
-                <div id="add-shoutout-recipient-section">
-                    <label for="recipient-input">Awarded to:</label>
-                    <div class="recipient-input-wrapper">
-                        <div id="recipient-container" class="recipient-container">
-                            <input type="text" id="recipient-input" placeholder="Type student or university name...">
-                        </div>
-                        <div id="autocomplete-results" class="autocomplete-results" style="display: none;"></div>
-                    </div>
+            <div class="modal-header">
+                <h2>Admin Panel</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <h3>Shoutouts</h3>
+                <div class="admin-panel-group">
+                    <button id="add-shoutout-btn" class="admin-btn">Add Shoutout</button>
+                    <button id="manage-shoutouts-btn" class="admin-btn">Manage Shoutouts</button>
                 </div>
-                <input type="hidden" id="shoutout-id-input">
-                <label for="shoutout-reason">Reason:</label>
-                <textarea id="shoutout-reason" name="reason" rows="4" required maxlength="60"></textarea>
-                <label for="teacher-initials">Teacher Initials:</label>
-                <input type="text" id="teacher-initials" name="initials" required maxlength="3" minlength="3" pattern="[A-Za-z]{3}" title="Please enter exactly 3 letters.">
-                <label for="timestamp" id="timestamp-label">Timestamp:</label>
-                <input type="text" id="timestamp" name="timestamp" readonly>
-                <button type="submit" class="admin-btn" id="shoutout-submit-btn">Submit Shoutout</button>
-            </form>
+                <div class="admin-panel-group" style="grid-template-columns: 1fr;">
+                    <button id="delete-all-shoutouts-btn" class="admin-btn danger-btn">Delete All Shoutouts</button>
+                </div>
+
+                <h3>Students</h3>
+                <div class="admin-panel-group">
+                    <button id="add-student-btn" class="admin-btn">Add Student</button>
+                    <button id="bulk-upload-btn" class="admin-btn">Bulk Upload</button>
+                </div>
+                <div class="admin-panel-group" style="grid-template-columns: 1fr;">
+                    <button id="manage-students-btn" class="admin-btn">Manage Students</button>
+                </div>
+                <div class="admin-panel-group" style="grid-template-columns: 1fr;">
+                    <button id="delete-all-students-btn" class="admin-btn danger-btn">Delete All Students</button>
+                </div>
+
+                <h3>Events</h3>
+                <div class="admin-panel-group">
+                    <button id="add-event-btn" class="admin-btn">Add Event</button>
+                    <button id="bulk-upload-events-btn" class="admin-btn">Bulk Upload</button>
+                </div>
+                <div class="admin-panel-group" style="grid-template-columns: 1fr;">
+                    <button id="manage-events-btn" class="admin-btn">Manage Events</button>
+                </div>
+                <div class="admin-panel-group" style="grid-template-columns: 1fr;">
+                    <button id="delete-all-events-btn" class="admin-btn danger-btn">Delete All Events</button>
+                </div>
+            </div>
         </div>
     </div>
+
     <div id="login-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Dashboard Login</h2>
-            <form id="login-form" class="modal-form">
-                <p>Enter your username and password to log in.</p>
-                <label for="username-input">Username:</label>
-                <input type="text" id="username-input" required>
-                <label for="password-input">Password:</label>
-                <input type="password" id="password-input" required>
-                <button type="submit" class="admin-btn">Login</button>
-            </form>
+            <div class="modal-header">
+                <h2>Dashboard Login</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <form id="login-form" class="modal-form">
+                    <label for="username-input">Username:</label>
+                    <input type="text" id="username-input" required autocomplete="username">
+                    <label for="password-input">Password:</label>
+                    <input type="password" id="password-input" required autocomplete="current-password">
+                    <button type="submit" class="admin-btn">Login</button>
+                </form>
+            </div>
         </div>
     </div>
+
     <div id="add-student-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="student-modal-title">Add New Student</h2>
-            <form id="add-student-form" class="modal-form">
-                <input type="hidden" id="student-id-input">
-                <label for="student-name-input">Student Name:</label>
-                <input type="text" id="student-name-input" name="studentName" required>
-                <label for="uni-select">University:</label>
-                <select id="uni-select" name="uni" required>
-                    <option value="" disabled selected>Select a university...</option>
-                    <option value="Edinburgh">Edinburgh</option>
-                    <option value="Manchester">Manchester</option>
-                    <option value="Oxford">Oxford</option>
-                    <option value="Warwick">Warwick</option>
-                </select>
-                <button type="submit" class="admin-btn" id="student-submit-btn">Add Student</button>
-            </form>
+            <div class="modal-header">
+                <h2 id="student-modal-title">Add New Student</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <form id="add-student-form" class="modal-form">
+                    <input type="hidden" id="student-id-input">
+                    <label for="student-name-input">Student Name:</label>
+                    <input type="text" id="student-name-input" name="studentName" required>
+                    <label for="uni-select">University:</label>
+                    <select id="uni-select" name="uni" required>
+                        <option value="" disabled selected>Select a university...</option>
+                        <optgroup label="Year 12">
+                            <option value="Bath">Bath</option>
+                            <option value="Edinburgh">Edinburgh</option>
+                            <option value="Manchester">Manchester</option>
+                            <option value="Oxford">Oxford</option>
+                            <option value="Warwick">Warwick</option>
+                        </optgroup>
+                        <optgroup label="Year 13">
+                            <option value="St Andrews">St Andrews</option>
+                            <option value="Bristol">Bristol</option>
+                            <option value="Cambridge">Cambridge</option>
+                            <option value="Exeter">Exeter</option>
+                        </optgroup>
+                    </select>
+                    <button type="submit" class="admin-btn" id="student-submit-btn">Add Student</button>
+                </form>
+            </div>
         </div>
     </div>
+
+    <div id="add-shoutout-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="shoutout-modal-title">Add Shoutout</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <form id="add-shoutout-form" class="modal-form">
+                    <input type="hidden" id="shoutout-id-input">
+                    <input type="hidden" id="shoutout-student-id" required>
+                    
+                    <label for="shoutout-student-search">Student:</label>
+                    <div class="student-search-container">
+                        <input type="text" id="shoutout-student-search" placeholder="Start typing a student's name..." autocomplete="off" required>
+                        <div id="shoutout-student-results" class="hidden"></div>
+                    </div>
+                    
+                    <label for="shoutout-reason-input">Reason:</label>
+                    <textarea id="shoutout-reason-input" rows="3" required></textarea>
+                    
+                    <label for="shoutout-teacher-initials-input">Your Initials (Teacher):</label>
+                    <input type="text" id="shoutout-teacher-initials-input" required minlength="3" maxlength="3">
+                    
+                    <button type="submit" class="admin-btn" id="shoutout-submit-btn">Submit Shoutout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="add-event-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="event-modal-title">Add New Event</h2>
-            <form id="add-event-form" class="modal-form">
-                <input type="hidden" id="event-id-input">
-                <label for="event-title-input">Event Title:</label>
-                <input type="text" id="event-title-input" name="eventTitle" required maxlength="30">
-                <label for="event-date-input">Date:</label>
-                <input type="text" id="event-date-input" name="eventDate" placeholder="Select a date..." readonly="readonly" required>
-                
-                <label for="event-unis-checkboxes">Involved Universities:</label>
-                <div id="event-unis-checkboxes">
-                    <label><input type="checkbox" name="eventUnis" value="Edinburgh"> Edinburgh</label>
-                    <label><input type="checkbox" name="eventUnis" value="Manchester"> Manchester</label>
-                    <label><input type="checkbox" name="eventUnis" value="Oxford"> Oxford</label>
-                    <label><input type="checkbox" name="eventUnis" value="Warwick"> Warwick</label>
-                </div>
-                
-                <button type="submit" class="admin-btn" id="event-submit-btn">Add Event</button>
-            </form>
+            <div class="modal-header">
+                <h2 id="event-modal-title">Add New Event</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <form id="add-event-form" class="modal-form">
+                    <input type="hidden" id="event-id-input">
+                    <label for="event-title-input">Event Title:</label>
+                    <input type="text" id="event-title-input" required>
+                    <label for="event-date-input">Date:</label>
+                    <input type="text" id="event-date-input" placeholder="Select a date..." required>
+                    <button type="submit" class="admin-btn" id="event-submit-btn">Add Event</button>
+                </form>
+            </div>
         </div>
     </div>
-    <div id="bulk-add-modal" class="modal">
+
+    <div id="bulk-upload-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Bulk Add Students</h2>
-            <form id="bulk-add-form" class="modal-form">
-                <p>Upload a CSV file with student data. The file must have two columns with no header row:</p>
-                <p><strong>Column A:</strong> Student Name<br><strong>Column B:</strong> University Name</p>
-                <p><small>Valid university names are: Edinburgh, Manchester, Oxford, Warwick. Rows with invalid university names will be skipped.</small></p>
-                <input type="file" id="csv-file-input" accept=".csv" required>
-                <button type="submit" class="admin-btn">Upload and Add Students</button>
-            </form>
+            <div class="modal-header">
+                <h2>Bulk Upload Students</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <form id="bulk-upload-form" class="modal-form">
+                    <p>Upload a CSV file with two columns: <b>name</b> and <b>uni</b>.</p>
+                    <label for="csv-file-input">CSV File:</label>
+                    <input type="file" id="csv-file-input" accept=".csv" required>
+                    <button type="submit" class="admin-btn">Upload Students</button>
+                </form>
+            </div>
         </div>
     </div>
-    <div id="bulk-add-events-modal" class="modal">
+
+    <div id="bulk-upload-events-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Bulk Add Events</h2>
-            <form id="bulk-add-events-form" class="modal-form">
-                <p>Upload a CSV file with event data. The file must have three columns with no header row:</p>
-                <p><strong>Column A:</strong> Event Title<br>
-                   <strong>Column B:</strong> Date (in DD/MM/YYYY format)<br>
-                   <strong>Column C:</strong> Involved Universities (comma-separated)</p>
-                <p><small>Example: Oxford,Warwick</small></p>
-                <input type="file" id="csv-events-file-input" accept=".csv" required>
-                <button type="submit" class="admin-btn">Upload and Add Events</button>
-            </form>
+            <div class="modal-header">
+                <h2>Bulk Upload Events</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <form id="bulk-upload-events-form" class="modal-form">
+                    <p>Upload a CSV file with two columns: <b>title</b> and <b>date</b>.</p>
+                    <p>The date must be in <b>DDMMYYYY</b> format (e.g., 10092025 for 10 September 2025).</p>
+                    <label for="csv-events-file-input">CSV File:</label>
+                    <input type="file" id="csv-events-file-input" accept=".csv" required>
+                    <button type="submit" class="admin-btn">Upload Events</button>
+                </form>
+            </div>
         </div>
     </div>
-    <div id="team-sheet-modal" class="modal">
+
+    <div id="manage-shoutouts-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="team-sheet-title">Team Sheet</h2>
-            <form id="team-sheet-form" class="modal-form">
-                <input type="hidden" id="ts-event-id" name="eventId">
-                <input type="hidden" id="ts-uni-name" name="uniName">
-                <label for="team-sheet-text">Enter team details:</label>
-                <textarea id="team-sheet-text" name="teamSheetText" rows="10" required></textarea>
-                <button type="submit" class="admin-btn">Save Team Sheet</button>
-            </form>
+            <div class="modal-header">
+                <h2>Manage Shoutouts</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-scroll-content">
+                <div id="shoutout-management-list" class="management-list"></div>
+            </div>
         </div>
     </div>
+
     <div id="manage-students-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Manage Students</h2>
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                <input type="text" id="student-search-input" placeholder="Search for a student..." style="width: 100%; padding: 10px; box-sizing: border-box; margin-top: 0;">
-                <button id="delete-all-students-btn" class="admin-btn" style="background-color: #c0392b; margin-top: 0; flex-shrink: 0; width: auto;">Delete All</button>
+            <div class="modal-header">
+                <h2>Manage Students</h2>
+                <span class="close-btn">&times;</span>
             </div>
-            <div id="student-list" class="management-list"></div>
+            <div class="modal-scroll-content">
+                <div id="student-management-list" class="management-list"></div>
+            </div>
         </div>
     </div>
+
     <div id="manage-events-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Manage Events</h2>
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                <p style="flex-grow: 1; margin: 0; opacity: 0.8;">A list of all upcoming and past events.</p>
-                <button id="delete-all-events-btn" class="admin-btn" style="background-color: #c0392b; margin-top: 0; flex-shrink: 0; width: auto;">Delete All</button>
+            <div class="modal-header">
+                <h2>Manage Events</h2>
+                <span class="close-btn">&times;</span>
             </div>
-            <div id="event-list" class="management-list"></div>
+            <div class="modal-scroll-content">
+                <div id="event-management-list" class="management-list"></div>
+            </div>
         </div>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
+            const Y12_UNIS = ['Bath', 'Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
+            const Y13_UNIS = ['St Andrews', 'Bristol', 'Cambridge', 'Exeter'];
+            const ALL_UNIS = [...Y12_UNIS, ...Y13_UNIS];
+
             let allStudents = [], allShoutouts = [], allEvents = [];
             let currentUserRole = 'guest';
-            let currentCalendarDate = new Date();
-            let uniChart = null;
-            let shoutoutRecipients = [];
-            let eventDatepicker = null;
+            let y12Chart = null;
+            let y13Chart = null;
+            let datePicker;
+            
+            let headerCarouselState = { events: [], currentIndex: 0 };
+            let database;
 
-            // --- INITIALIZE FIREBASE and AUTH LISTENER ---
+            // Initialize Flatpickr date picker
+            datePicker = flatpickr("#event-date-input", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+            });
+            
             try {
                 const firebaseConfig = {
                     apiKey: "AIzaSyAbge0io2zDFsgPTgyJ8cgzfGsegqeF19w",
@@ -751,800 +433,671 @@
                     appId: "1:198847746183:web:bbb2ab9f9c4f3657ea6822"
                 };
                 firebase.initializeApp(firebaseConfig);
-                const database = firebase.database();
+                database = firebase.database();
 
-                // Listen for authentication state changes
                 firebase.auth().onAuthStateChanged(user => {
                     if (user) {
-                        // User is signed in.
-                        console.log(user.email + ' is logged in.');
-                        if (user.email === 'admin@arkpioneer.org') {
-                            currentUserRole = 'admin';
-                        } else if (user.email === 'teacher@arkpioneer.org') {
-                            currentUserRole = 'teacher';
-                        } else {
-                            currentUserRole = 'guest';
-                        }
+                        if (user.email === 'admin@arkpioneer.org') currentUserRole = 'admin';
+                        else if (user.email === 'teacher@arkpioneer.org') currentUserRole = 'teacher';
+                        else currentUserRole = 'guest';
                     } else {
-                        // User is signed out.
-                        console.log('No user is logged in.');
                         currentUserRole = 'guest';
                     }
-                    // Update the page permissions based on the new role
-                    setupPermissions();
+                    updateUIForRole(); 
                 });
 
-                database.ref('students').on('value', (snapshot) => { const data = snapshot.val() || {}; allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderShoutoutUI(); });
-                database.ref('shoutouts').on('value', (snapshot) => { const data = snapshot.val() || {}; allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); renderShoutoutUI(); });
-                database.ref('events').on('value', (snapshot) => { const data = snapshot.val() || {}; allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); renderCalendar(); renderManageEventsModal(); });
+                database.ref('students').on('value', (snapshot) => { 
+                    const data = snapshot.val() || {}; 
+                    allStudents = Object.keys(data).map(key => ({ id: key, ...data[key] })); 
+                    if (document.getElementById('manage-students-modal').style.display === 'block') renderStudentManagementList();
+                    if (document.getElementById('manage-shoutouts-modal').style.display === 'block') renderShoutoutManagementList();
+                    renderDashboardUI();
+                });
+                database.ref('shoutouts').on('value', (snapshot) => { 
+                    const data = snapshot.val() || {}; 
+                    allShoutouts = Object.keys(data).map(key => ({ id: key, ...data[key], timestamp: new Date(data[key].timestamp) })); 
+                    if (document.getElementById('manage-shoutouts-modal').style.display === 'block') renderShoutoutManagementList();
+                    renderDashboardUI(); 
+                });
+                database.ref('events').on('value', (snapshot) => { 
+                    const data = snapshot.val() || {}; 
+                    allEvents = Object.keys(data).map(key => ({ id: key, ...data[key] })); 
+                    if (document.getElementById('manage-events-modal').style.display === 'block') renderEventManagementList();
+                    renderDashboardUI();
+                });
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
                 alert("Could not connect to the database. Check console for details.");
             }
             
-            const getStudentById = (id) => allStudents.find(s => s.id === id);
-            
-            function displayCurrentDate() {
-                const dateEl = document.getElementById('current-date-display');
-                if (!dateEl) return;
-                const today = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                dateEl.textContent = today.toLocaleDateString('en-GB', options);
-            }
+            function updateUIForRole() {
+                const isAdmin = currentUserRole === 'admin';
+                const isTeacher = currentUserRole === 'teacher';
+                
+                const loginBtn = document.getElementById('login-btn');
+                if (isAdmin || isTeacher) {
+                    loginBtn.textContent = `Logout (${currentUserRole})`;
+                } else {
+                    loginBtn.textContent = 'Login';
+                }
 
-            function setupPermissions() {
-                const allTools = document.querySelectorAll('.admin-tools');
-                const shoutoutTools = document.getElementById('add-shoutout-btn')?.parentElement;
+                // Handle visibility of role-specific header buttons
+                document.getElementById('admin-panel-btn').classList.toggle('hidden', !isAdmin);
+                document.getElementById('log-shoutout-btn').classList.toggle('hidden', !(isTeacher || isAdmin));
 
-                allTools.forEach(el => {
-                    el.style.display = 'none';
+                // Add role class to body for CSS targeting
+                document.body.classList.remove('admin-view', 'teacher-view');
+                if(isAdmin) document.body.classList.add('admin-view');
+                if(isTeacher) document.body.classList.add('teacher-view');
+
+                // Handle visibility of buttons within the admin panel
+                const teacherAccessBtns = document.querySelectorAll('#add-shoutout-btn, #manage-shoutouts-btn');
+                const adminOnlyBtns = document.querySelectorAll('#add-student-btn, #bulk-upload-btn, #manage-students-btn, #add-event-btn, #manage-events-btn, #bulk-upload-events-btn, #delete-all-shoutouts-btn, #delete-all-students-btn, #delete-all-events-btn');
+
+                teacherAccessBtns.forEach(btn => {
+                    const parentGroup = btn.closest('.admin-panel-group');
+                    if (parentGroup) parentGroup.style.display = (isAdmin || isTeacher) ? 'grid' : 'none';
+                });
+                
+                adminOnlyBtns.forEach(btn => {
+                    const parentGroup = btn.closest('.admin-panel-group');
+                    if (parentGroup) parentGroup.style.display = isAdmin ? 'grid' : 'none';
                 });
 
-                if (currentUserRole === 'admin') {
-                    allTools.forEach(el => {
-                        el.style.display = 'flex';
+                renderDashboardUI();
+            }
+
+            function renderDashboardUI() {
+                const y12Students = allStudents.filter(s => Y12_UNIS.includes(s.uni));
+                const y12Shoutouts = allShoutouts.filter(s => y12Students.some(stu => stu.id === s.studentId));
+                const y13Students = allStudents.filter(s => Y13_UNIS.includes(s.uni));
+                const y13Shoutouts = allShoutouts.filter(s => y13Students.some(stu => stu.id === s.studentId));
+                
+                renderShoutoutFeedForYear(getSortedShoutoutsWithTopStudent(y12Students, y12Shoutouts), 'shoutout-feed-y12');
+                renderY12Chart(y12Students, y12Shoutouts);
+                renderShoutoutFeedForYear(getSortedShoutoutsWithTopStudent(y13Students, y13Shoutouts), 'shoutout-feed-y13');
+                renderY13Chart(y13Students, y13Shoutouts);
+                renderHeaderCarousel();
+            }
+
+            function getSortedShoutoutsWithTopStudent(yearStudents, yearShoutouts) {
+                const shoutoutsWithStudentInfo = yearShoutouts.map(shoutout => ({
+                    ...shoutout,
+                    student: yearStudents.find(s => s.id === shoutout.studentId)
+                })).filter(s => s.student);
+
+                let topStudentData = null;
+                if (yearStudents.length > 0 && yearShoutouts.length > 0) {
+                    const shoutoutCounts = {};
+                    yearShoutouts.forEach(shoutout => {
+                        shoutoutCounts[shoutout.studentId] = (shoutoutCounts[shoutout.studentId] || 0) + 1;
                     });
-                } else if (currentUserRole === 'teacher') {
-                    if (shoutoutTools) {
-                        shoutoutTools.style.display = 'flex';
+
+                    const studentScores = yearStudents.map(student => ({
+                        ...student, count: shoutoutCounts[student.id] || 0
+                    }));
+                    
+                    const maxScore = Math.max(...studentScores.map(s => s.count));
+
+                    if (maxScore > 0) {
+                        const topScorers = studentScores.filter(s => s.count === maxScore);
+                        
+                        if (topScorers.length === 1) {
+                            const topScorer = topScorers[0];
+                            topStudentData = {
+                                id: 'top-student',
+                                isTopStudent: true,
+                                student: topScorer,
+                                reason: `With ${topScorer.count} shoutouts!`,
+                                teacher: 'System',
+                                timestamp: new Date(),
+                                badgeText: '🏆 Top Student'
+                            };
+                        } else if (topScorers.length > 1) {
+                            const jointNames = topScorers.map(s => s.name).join(' & ');
+                            topStudentData = {
+                                id: 'top-student',
+                                isTopStudent: true,
+                                student: { name: jointNames, uni: 'Top-Student' }, 
+                                reason: `As joint leaders with ${maxScore} shoutouts!`,
+                                teacher: 'System',
+                                timestamp: new Date(),
+                                badgeText: '🏆 Joint Leaders'
+                            };
+                        }
                     }
                 }
                 
-                document.getElementById('login-btn').textContent = currentUserRole === 'guest' ? 'Login' : `Logout (${currentUserRole})`;
-                renderShoutoutFeed();
-                renderCalendar();
+                const regularShoutouts = shoutoutsWithStudentInfo.sort((a, b) => b.timestamp - a.timestamp);
+                const finalShoutoutList = [...regularShoutouts];
+                if (topStudentData) {
+                    finalShoutoutList.unshift(topStudentData);
+                }
+                return finalShoutoutList;
             }
             
-            function renderShoutoutUI() {
-                renderLeaderboard();
-                renderShoutoutFeed();
-                renderUniversityChart();
-            }
-
-            function renderLeaderboard() {
-                const leaderboardEl = document.getElementById('leaderboard');
-                if (!leaderboardEl) return;
-                leaderboardEl.innerHTML = '';
-                const shoutoutCounts = allStudents.map(student => ({...student, count: allShoutouts.filter(s => s.studentId === student.id).length}));
-                const top3 = shoutoutCounts.sort((a, b) => b.count - a.count).slice(0, 3);
-                top3.forEach((student, index) => {
-                    if (student.count > 0) {
-                        leaderboardEl.innerHTML += `<div class="leaderboard-entry"><span>#${index + 1} ${student.name} (${student.uni})</span><span>${student.count} Shoutouts</span></div>`;
-                    }
-                });
-            }
-
-            function renderShoutoutFeed() {
-                const feedEl = document.getElementById('shoutout-feed');
+            function renderShoutoutFeedForYear(sortedShoutouts, elementId) {
+                const feedEl = document.getElementById(elementId);
                 if (!feedEl) return;
-                feedEl.innerHTML = '';
-                const sortedShoutouts = [...allShoutouts].sort((a, b) => b.timestamp - a.timestamp);
-                sortedShoutouts.forEach((shoutout) => {
-                    const student = getStudentById(shoutout.studentId);
-                    if (!student) return;
+                feedEl.innerHTML = sortedShoutouts.length === 0 ? '<p class="no-events">No recent shoutouts.</p>' : '';
+                feedEl.classList.toggle('empty-feed', sortedShoutouts.length === 0);
 
-                    let timestampFormat;
-                    if (currentUserRole === 'admin') {
-                        const adminOptions = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-                        timestampFormat = shoutout.timestamp.toLocaleString('en-GB', adminOptions);
-                    } else {
-                        timestampFormat = shoutout.timestamp.toLocaleDateString('en-GB');
-                    }
-                    
-                    const adminIconsHTML = currentUserRole === 'admin' ? `
+                sortedShoutouts.forEach((shoutout) => {
+                    const student = shoutout.student;
+                    if (!student) return;
+                    const adminIconsHTML = (currentUserRole === 'admin' && !shoutout.isTopStudent) ? `
                         <div class="shoutout-admin-icons">
                             <button class="admin-icon edit-shoutout-btn" data-shoutout-id="${shoutout.id}">✏️</button>
                             <button class="admin-icon delete-shoutout-btn" data-shoutout-id="${shoutout.id}">🗑️</button>
-                        </div>
-                    ` : '';
-
-                    const cardHTML = `<div class="shoutout-card border-${student.uni}">
+                        </div>` : '';
+                    const uniNameForClass = student.uni.replace(/ /g, '-');
+                    const topStudentClass = shoutout.isTopStudent ? ' top-student' : '';
+                    const cardHTML = `<div class="shoutout-card uni-${uniNameForClass}${topStudentClass}">
                         ${adminIconsHTML}
-                        <div class="shoutout-card-header">
-                            <span class="student-name">${student.name}</span>
-                            <span class="student-uni">${student.uni}</span>
-                        </div>
+                        <div class="shoutout-card-header"><span class="student-name">${student.name}</span>
+                        ${shoutout.isTopStudent ? `<span class="top-student-badge">${shoutout.badgeText}</span>` : ''}</div>
                         <p class="reason">${shoutout.reason}</p>
-                        <div class="shoutout-card-footer">- ${shoutout.teacher} on ${timestampFormat}</div>
+                        <div class="shoutout-card-footer">- ${shoutout.teacher} on ${new Date(shoutout.timestamp).toLocaleDateString('en-GB')}</div>
                     </div>`;
-                    feedEl.innerHTML += cardHTML;
+                    feedEl.insertAdjacentHTML('beforeend', cardHTML);
                 });
             }
 
-            function renderUniversityChart() {
-                const chartEl = document.getElementById('uni-chart');
-                const doughnutMessageEl = document.getElementById('doughnut-message');
-                if (!chartEl || !doughnutMessageEl) return;
-                const ctx = chartEl.getContext('2d');
-                const uniTotals = { Edinburgh: 0, Manchester: 0, Oxford: 0, Warwick: 0 };
-                allShoutouts.forEach(shoutout => {
-                    const student = getStudentById(shoutout.studentId);
-                    if (student && uniTotals.hasOwnProperty(student.uni)) {
-                        uniTotals[student.uni]++;
-                    }
-                });
 
+            function renderY12Chart(y12Students, y12Shoutouts) {
+                const ctx = document.getElementById('uni-chart-y12').getContext('2d');
+                const uniTotals = Object.fromEntries(Y12_UNIS.map(uni => [uni, 0]));
+                const studentMap = new Map(y12Students.map(s => [s.id, s]));
+                y12Shoutouts.forEach(shoutout => {
+                    const student = studentMap.get(shoutout.studentId);
+                    if (student && uniTotals.hasOwnProperty(student.uni)) uniTotals[student.uni]++;
+                });
                 const dataValues = Object.values(uniTotals);
-                const maxVal = Math.max(...dataValues);
-                
-                if (maxVal > 0) {
-                    const winners = Object.keys(uniTotals).filter(uni => uniTotals[uni] === maxVal);
-                    let leaderText;
-                    if (winners.length > 1) {
-                        leaderText = `Current leaders are ${winners.join(' & ')}!`;
-                    } else {
-                        leaderText = `Current leader is ${winners[0]}!`;
-                    }
-                    doughnutMessageEl.innerHTML = `1st Place = Friday Doughnuts<br>${leaderText}`;
+                const maxVal = Math.max(0, ...dataValues);
+                const suggestedMax = Math.max(5, Math.ceil((maxVal + 1) / 2) * 2);
+                const colors = Y12_UNIS.map(uni => getComputedStyle(document.body).getPropertyValue(`--${uni.toLowerCase()}`).trim());
+                if (y12Chart) {
+                    y12Chart.data.datasets[0].data = dataValues;
+                    y12Chart.options.scales.y.suggestedMax = suggestedMax;
+                    y12Chart.update();
+                    return;
+                }
+                y12Chart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: dataValues, backgroundColor: colors }] }, options: { animation: { duration: 1000 }, responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: 'white', font: { weight: 'bold' } } }, y: { ticks: { color: 'white', stepSize: 1 }, beginAtZero: true, suggestedMax: suggestedMax } }, plugins: { legend: { display: false }, tooltip: { displayColors: false } } } });
+            }
+
+            function renderY13Chart(y13Students, y13Shoutouts) {
+                const ctx = document.getElementById('uni-chart-y13').getContext('2d');
+                const uniTotals = Object.fromEntries(Y13_UNIS.map(uni => [uni, 0]));
+                const studentMap = new Map(y13Students.map(s => [s.id, s]));
+                y13Shoutouts.forEach(shoutout => {
+                    const student = studentMap.get(shoutout.studentId);
+                    if (student && uniTotals.hasOwnProperty(student.uni)) uniTotals[student.uni]++;
+                });
+                const dataValues = Object.values(uniTotals);
+                const maxVal = Math.max(0, ...dataValues);
+                const suggestedMax = Math.max(5, Math.ceil((maxVal + 1) / 2) * 2);
+                const colors = Y13_UNIS.map(uni => getComputedStyle(document.body).getPropertyValue(`--${uni.toLowerCase().replace(/ /g, '-')}-deep`).trim());
+                if (y13Chart) {
+                    y13Chart.data.datasets[0].data = dataValues;
+                    y13Chart.options.scales.y.suggestedMax = suggestedMax;
+                    y13Chart.update();
+                    return;
+                }
+                y13Chart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: dataValues, backgroundColor: colors }] }, options: { animation: { duration: 1000 }, responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: 'white', font: { weight: 'bold' } } }, y: { ticks: { color: 'white', stepSize: 1 }, beginAtZero: true, suggestedMax: suggestedMax } }, plugins: { legend: { display: false }, tooltip: { displayColors: false } } } });
+            }
+
+            function renderHeaderCarousel() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const upcomingEvents = allEvents.filter(event => new Date(event.date + 'T00:00:00') >= today).sort((a, b) => new Date(a.date) - new Date(b.date));
+                headerCarouselState.events = upcomingEvents;
+                headerCarouselState.currentIndex = 0;
+                updateHeaderCarouselDisplay();
+            }
+
+            function formatEventDate(dateStr) {
+                const today = new Date();
+                const tomorrow = new Date();
+                today.setHours(0, 0, 0, 0);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                const eventDate = new Date(dateStr + 'T00:00:00');
+                if (eventDate.getTime() === today.getTime()) return "Today";
+                if (eventDate.getTime() === tomorrow.getTime()) return "Tomorrow";
+                return eventDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+            }
+
+            function updateHeaderCarouselDisplay() {
+                const carouselEl = document.getElementById('header-event-carousel');
+                const displayEl = document.getElementById('header-event-display');
+                const prevBtn = carouselEl.querySelector('[data-direction="prev"]');
+                const nextBtn = carouselEl.querySelector('[data-direction="next"]');
+                const { events, currentIndex } = headerCarouselState;
+
+                carouselEl.classList.remove('hidden');
+
+                if (events.length === 0) {
+                    displayEl.textContent = 'No upcoming events.';
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
                 } else {
-                    doughnutMessageEl.innerHTML = '';
-                }
+                    const event = events[currentIndex];
+                    displayEl.textContent = `${formatEventDate(event.date)} - ${event.title}`;
+                    
+                    const showArrows = events.length > 1;
+                    prevBtn.style.display = showArrows ? 'flex' : 'none';
+                    nextBtn.style.display = showArrows ? 'flex' : 'none';
 
-                const suggestedMax = Math.max(5, maxVal + 2);
-
-                if (uniChart) {
-                    uniChart.data.datasets[0].data = dataValues;
-                    uniChart.options.scales.y.suggestedMax = suggestedMax;
-                    uniChart.update();
-                    return;
-                }
-                const colors = [getComputedStyle(document.body).getPropertyValue('--edinburgh'), getComputedStyle(document.body).getPropertyValue('--manchester'), getComputedStyle(document.body).getPropertyValue('--oxford'), getComputedStyle(document.body).getPropertyValue('--warwick')];
-                const chartOptions = {
-                    animation: { duration: 1000 },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { ticks: { color: 'white' } },
-                        y: { 
-                            ticks: { color: 'white', stepSize: 1 }, 
-                            beginAtZero: true,
-                            suggestedMax: suggestedMax 
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                };
-                uniChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(uniTotals), datasets: [{ data: dataValues, backgroundColor: colors }] }, options: chartOptions });
-            }
-
-            function renderCalendar() {
-                const weekViewEl = document.getElementById('week-view');
-                const weekLabelEl = document.getElementById('week-range-label');
-                if (!weekViewEl || !weekLabelEl) return;
-                weekViewEl.innerHTML = '';
-                const startOfWeek = new Date(currentCalendarDate);
-
-                const dayOfWeek = startOfWeek.getDay();
-                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
-                startOfWeek.setDate(startOfWeek.getDate() - diff);
-                
-                startOfWeek.setHours(0, 0, 0, 0);
-                const endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6);
-                const startOptions = { month: 'short', day: 'numeric' };
-                const endOptions = { month: 'short', day: 'numeric', year: 'numeric' };
-                weekLabelEl.textContent = `${startOfWeek.toLocaleDateString('en-US', startOptions)} - ${endOfWeek.toLocaleDateString('en-US', endOptions)}`;
-                for (let i = 0; i < 7; i++) {
-                    const day = new Date(startOfWeek);
-                    day.setDate(startOfWeek.getDate() + i);
-                    const dayName = day.toLocaleDateString('en-US', { weekday: 'long' });
-                    const dayDate = day.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-                    const dateStringForMatch = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-                    const dayEvents = allEvents.filter(e => e.date === dateStringForMatch);
-                    let eventsHTML = '<p class="no-events">No events scheduled.</p>';
-                    if (dayEvents.length > 0) {
-                        eventsHTML = '<ul class="events-list">';
-                        dayEvents.forEach(event => {
-                            let borderStyle = 'border-color: rgba(255,255,255,0.2);';
-                            let uniListHTML = '';
-                            let actionsHTML = '';
-
-                            if (event.unis && event.unis.length > 0) {
-                                const colorVars = event.unis.map(uni => `var(--${uni.toLowerCase()})`);
-                                if (colorVars.length > 1) {
-                                    borderStyle = `border-image: linear-gradient(to bottom, ${colorVars.join(', ')}) 1;`;
-                                } else {
-                                    borderStyle = `border-color: ${colorVars[0]};`;
-                                }
-                                uniListHTML = `<span class="event-unis">Involves: ${event.unis.join(', ')}</span>`;
-
-                                let tsButtons = '';
-                                if (currentUserRole === 'admin' || currentUserRole === 'teacher') {
-                                    tsButtons = event.unis.map(uni => {
-                                        const teamSheetText = event.teamSheets?.[uni];
-                                        const hasText = teamSheetText && teamSheetText.trim() !== '';
-                                        const buttonContent = hasText ? '✔' : 'TS';
-                                        const buttonClasses = `ts-btn ${uni.toLowerCase()} ${hasText ? 'has-text' : ''}`;
-                                        return `<button class="${buttonClasses}" data-event-id="${event.id}" data-uni-name="${uni}">${buttonContent}</button>`;
-                                    }).join('');
-                                }
-                                
-                                let adminIcons = '';
-                                if (currentUserRole === 'admin') {
-                                    adminIcons = `
-                                        <div class="event-admin-icons">
-                                            <button class="admin-icon edit-event-btn" data-event-id="${event.id}">✏️</button>
-                                            <button class="admin-icon delete-event-btn" data-event-id="${event.id}">🗑️</button>
-                                        </div>
-                                    `;
-                                }
-                                actionsHTML = `<div class="event-actions">${tsButtons}${adminIcons}</div>`;
-                            }
-                            eventsHTML += `<li style="${borderStyle}"><div class="event-details">${event.title}${uniListHTML}</div>${actionsHTML}</li>`;
-                        });
-                        eventsHTML += '</ul>';
+                    if (showArrows) {
+                        prevBtn.disabled = (currentIndex === 0);
+                        nextBtn.disabled = (currentIndex >= events.length - 1);
                     }
-                    weekViewEl.innerHTML += `<div class="week-day"><div class="day-header">${dayName}<span class="date">${dayDate}</span></div>${eventsHTML}</div>`;
                 }
             }
 
-            function renderRecipientTags() {
-                const container = document.getElementById('recipient-container');
-                container.querySelectorAll('.recipient-tag').forEach(tag => tag.remove());
-                shoutoutRecipients.forEach(recipient => {
-                    const tag = document.createElement('div');
-                    tag.className = 'recipient-tag';
-                    let name = recipient.type === 'student' ? recipient.name : `All ${recipient.name} Students`;
-                    tag.innerHTML = `<span>${name}</span><span class="remove-tag" data-id="${recipient.id || recipient.name}" data-type="${recipient.type}">&times;</span>`;
-                    container.insertBefore(tag, document.getElementById('recipient-input'));
-                });
-            }
-
-            function updateAutocomplete(query) {
-                const resultsContainer = document.getElementById('autocomplete-results');
-                resultsContainer.innerHTML = '';
-                if (!query) {
-                    resultsContainer.style.display = 'none';
-                    return;
-                }
-                const lowerCaseQuery = query.toLowerCase();
-                const matchingStudents = allStudents.filter(student => student.name.toLowerCase().includes(lowerCaseQuery) && !shoutoutRecipients.some(r => r.type === 'student' && r.id === student.id)).slice(0, 5);
-                const universities = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
-                const matchingUnis = universities.filter(uni => uni.toLowerCase().includes(lowerCaseQuery) && !shoutoutRecipients.some(r => r.type === 'uni' && r.name === uni));
-                matchingUnis.forEach(uni => {
-                    const item = document.createElement('div');
-                    item.className = 'autocomplete-item uni-select';
-                    item.textContent = `All ${uni} Students`;
-                    item.dataset.type = 'uni';
-                    item.dataset.name = uni;
-                    resultsContainer.appendChild(item);
-                });
-                matchingStudents.forEach(student => {
-                    const item = document.createElement('div');
-                    item.className = 'autocomplete-item';
-                    item.innerHTML = `${student.name} <span class="uni-name">(${student.uni})</span>`;
-                    item.dataset.type = 'student';
-                    item.dataset.id = student.id;
-                    item.dataset.name = student.name;
-                    resultsContainer.appendChild(item);
-                });
-                resultsContainer.style.display = (matchingStudents.length > 0 || matchingUnis.length > 0) ? 'block' : 'none';
-            }
-
-            // --- ALL EVENT LISTENERS ARE NOW INITIALIZED IN THIS FUNCTION ---
             function setupEventListeners() {
-                // Modal variables
-                const loginModal = document.getElementById('login-modal');
-                const addShoutoutModal = document.getElementById('add-shoutout-modal');
-                const addStudentModal = document.getElementById('add-student-modal');
-                const addEventModal = document.getElementById('add-event-modal');
-                const bulkAddModal = document.getElementById('bulk-add-modal');
-                const bulkAddEventsModal = document.getElementById('bulk-add-events-modal');
-                const teamSheetModal = document.getElementById('team-sheet-modal');
-                const manageStudentsModal = document.getElementById('manage-students-modal');
-                const manageEventsModal = document.getElementById('manage-events-modal');
-
-                // Main Login
+                document.getElementById('admin-panel-btn').addEventListener('click', () => {
+                    document.getElementById('admin-panel-modal').style.display = 'block';
+                });
+                document.getElementById('log-shoutout-btn').addEventListener('click', () => openShoutoutModal());
                 document.getElementById('login-btn').addEventListener('click', () => { 
-                    if (currentUserRole !== 'guest') {
-                        firebase.auth().signOut();
-                    } else {
-                        document.getElementById('login-form').reset();
-                        loginModal.style.display = 'block'; 
-                    }
+                    if (currentUserRole !== 'guest') firebase.auth().signOut();
+                    else document.getElementById('login-modal').style.display = 'block'; 
                 });
-                loginModal.querySelector('.close-btn').addEventListener('click', () => loginModal.style.display = 'none');
-                
-                document.getElementById('login-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const username = document.getElementById('username-input').value.trim().toLowerCase(); // Make it case-insensitive
-                    const password = document.getElementById('password-input').value.trim();
-                    const auth = firebase.auth();
-                    const database = firebase.database();
-
-                    database.ref('usernames/' + username).once('value')
-                        .then(snapshot => {
-                            const email = snapshot.val();
-                            if (email) {
-                                return auth.signInWithEmailAndPassword(email, password);
-                            } else {
-                                throw new Error("Invalid username or password.");
-                            }
-                        })
-                        .then(userCredential => {
-                            console.log('User signed in:', userCredential.user.email);
-                            loginModal.style.display = 'none';
-                        })
-                        .catch(error => {
-                            console.error('Login failed:', error.message);
-                            alert('Login failed. Please check your username and password.');
-                        });
+                document.getElementById('add-student-btn').addEventListener('click', () => openStudentModal());
+                document.getElementById('add-shoutout-btn').addEventListener('click', () => openShoutoutModal());
+                document.getElementById('add-event-btn').addEventListener('click', () => openEventModal());
+                document.getElementById('manage-shoutouts-btn').addEventListener('click', () => {
+                    renderShoutoutManagementList();
+                    document.getElementById('manage-shoutouts-modal').style.display = 'block';
                 });
-                
-                // Modal Close Buttons
-                addShoutoutModal.querySelector('.close-btn').addEventListener('click', () => addShoutoutModal.style.display = "none");
-                addStudentModal.querySelector('.close-btn').addEventListener('click', () => addStudentModal.style.display = "none");
-                addEventModal.querySelector('.close-btn').addEventListener('click', () => addEventModal.style.display = "none");
-                bulkAddModal.querySelector('.close-btn').addEventListener('click', () => bulkAddModal.style.display = 'none');
-                bulkAddEventsModal.querySelector('.close-btn').addEventListener('click', () => bulkAddEventsModal.style.display = 'none');
-                teamSheetModal.querySelector('.close-btn').addEventListener('click', () => teamSheetModal.style.display = 'none');
-                manageStudentsModal.querySelector('.close-btn').addEventListener('click', () => manageStudentsModal.style.display = 'none');
-                manageEventsModal.querySelector('.close-btn').addEventListener('click', () => manageEventsModal.style.display = 'none');
-                
-                // Admin Buttons to Open Modals
-                document.getElementById('add-shoutout-btn').addEventListener('click', () => {
-                    const form = document.getElementById('shoutout-form');
-                    form.reset();
-                    document.getElementById('shoutout-modal-title').textContent = 'Log a New Shoutout';
-                    document.getElementById('shoutout-submit-btn').textContent = 'Submit Shoutout';
-                    document.getElementById('shoutout-id-input').value = '';
-                    document.getElementById('timestamp-label').style.display = 'block';
-                    document.getElementById('timestamp').style.display = 'block';
-                    document.getElementById('timestamp').value = new Date().toLocaleString();
-                    shoutoutRecipients = [];
-                    renderRecipientTags();
-                    addShoutoutModal.style.display = "block";
+                document.getElementById('bulk-upload-btn').addEventListener('click', () => {
+                    document.getElementById('bulk-upload-form').reset();
+                    document.getElementById('bulk-upload-modal').style.display = 'block';
                 });
-                document.getElementById('add-student-btn').addEventListener('click', () => {
-                    const form = document.getElementById('add-student-form');
-                    form.reset();
-                    document.getElementById('student-modal-title').textContent = 'Add New Student';
-                    document.getElementById('student-submit-btn').textContent = 'Add Student';
-                    document.getElementById('student-id-input').value = '';
-                    addStudentModal.style.display = "block";
+                document.getElementById('bulk-upload-events-btn').addEventListener('click', () => {
+                    document.getElementById('bulk-upload-events-form').reset();
+                    document.getElementById('bulk-upload-events-modal').style.display = 'block';
                 });
-                document.getElementById('add-event-btn').addEventListener('click', () => openEditEventModal());
-                document.getElementById('bulk-add-btn').addEventListener('click', () => {
-                    document.getElementById('bulk-add-form').reset();
-                    bulkAddModal.style.display = 'block';
-                });
-                document.getElementById('bulk-add-events-btn').addEventListener('click', () => {
-                    document.getElementById('bulk-add-events-form').reset();
-                    bulkAddEventsModal.style.display = 'block';
+                document.getElementById('manage-students-btn').addEventListener('click', () => {
+                    renderStudentManagementList();
+                    document.getElementById('manage-students-modal').style.display = 'block';
                 });
                 document.getElementById('manage-events-btn').addEventListener('click', () => {
-                    renderManageEventsModal();
-                    manageEventsModal.style.display = 'block';
+                    renderEventManagementList();
+                    document.getElementById('manage-events-modal').style.display = 'block';
                 });
 
-                // Delegated listeners for dynamic content
-                document.getElementById('shoutout-feed').addEventListener('click', (e) => {
-                    const shoutoutId = e.target.dataset.shoutoutId;
-                    if (!shoutoutId) return;
-                    if (e.target.classList.contains('delete-shoutout-btn')) {
-                        if (confirm('Are you sure you want to delete this shoutout?')) {
-                            firebase.database().ref('shoutouts/' + shoutoutId).remove();
-                        }
-                    } else if (e.target.classList.contains('edit-shoutout-btn')) {
-                        const shoutout = allShoutouts.find(s => s.id === shoutoutId);
-                        const student = getStudentById(shoutout.studentId);
-                        if (!shoutout || !student) return;
-
-                        shoutoutRecipients = [{ type: 'student', id: student.id, name: student.name }];
-                        renderRecipientTags();
-
-                        document.getElementById('shoutout-modal-title').textContent = 'Edit Shoutout';
-                        document.getElementById('shoutout-submit-btn').textContent = 'Save Changes';
-                        document.getElementById('shoutout-id-input').value = shoutout.id;
-                        document.getElementById('shoutout-reason').value = shoutout.reason;
-                        document.getElementById('teacher-initials').value = shoutout.teacher;
-                        document.getElementById('timestamp-label').style.display = 'none';
-                        document.getElementById('timestamp').style.display = 'none';
-                        addShoutoutModal.style.display = 'block';
+                // --- Delete All Listeners ---
+                document.getElementById('delete-all-shoutouts-btn').addEventListener('click', () => {
+                    if (confirm('ARE YOU SURE you want to delete ALL shoutouts? This action cannot be undone.')) {
+                        database.ref('shoutouts').remove();
+                        alert('All shoutouts have been deleted.');
                     }
                 });
-
-                document.getElementById('week-view').addEventListener('click', (e) => {
-                    const target = e.target;
-                    const tsButton = target.closest('.ts-btn');
-                    const editButton = target.closest('.edit-event-btn');
-                    const deleteButton = target.closest('.delete-event-btn');
-
-                    if (tsButton) {
-                        const { eventId, uniName } = tsButton.dataset;
-                        const eventData = allEvents.find(ev => ev.id === eventId);
-                        if (!eventData) return;
-                        const currentText = eventData.teamSheets?.[uniName] || '';
-                        document.getElementById('team-sheet-title').textContent = `Team Sheet for ${uniName}`;
-                        document.getElementById('ts-event-id').value = eventId;
-                        document.getElementById('ts-uni-name').value = uniName;
-                        document.getElementById('team-sheet-text').value = currentText;
-                        teamSheetModal.style.display = 'block';
-                        return;
-                    }
-                    if (editButton) {
-                        openEditEventModal(editButton.dataset.eventId);
-                        return;
-                    }
-                    if (deleteButton) {
-                        if (confirm('Are you sure you want to delete this event?')) {
-                            firebase.database().ref('events/' + deleteButton.dataset.eventId).remove();
-                        }
-                        return;
-                    }
-                });
-
-                document.getElementById('manage-data-btn').addEventListener('click', () => {
-                    renderManageStudentsModal();
-                    manageStudentsModal.style.display = 'block';
-                });
-                
-                document.getElementById('student-search-input').addEventListener('keyup', () => {
-                    renderManageStudentsModal(document.getElementById('student-search-input').value);
-                });
-
-                document.getElementById('student-list').addEventListener('click', (e) => {
-                    const studentId = e.target.dataset.studentId;
-                    if (!studentId) return;
-                    if (e.target.classList.contains('delete-student-btn')) {
-                        if (confirm('WARNING: This will delete the student AND all of their shoutouts permanently. Are you sure?')) {
-                            const updates = {};
-                            updates['/students/' + studentId] = null;
-                            allShoutouts.forEach(shoutout => {
-                                if (shoutout.studentId === studentId) {
-                                    updates['/shoutouts/' + shoutout.id] = null;
-                                }
-                            });
-                            firebase.database().ref().update(updates)
-                                .then(() => renderManageStudentsModal());
-                        }
-                    } else if (e.target.classList.contains('edit-student-btn')) {
-                        const student = allStudents.find(s => s.id === studentId);
-                        if (!student) return;
-                        document.getElementById('student-modal-title').textContent = 'Edit Student';
-                        document.getElementById('student-submit-btn').textContent = 'Save Changes';
-                        document.getElementById('student-id-input').value = student.id;
-                        document.getElementById('student-name-input').value = student.name;
-                        document.getElementById('uni-select').value = student.uni;
-                        manageStudentsModal.style.display = 'none';
-                        addStudentModal.style.display = 'block';
-                    }
-                });
-
                 document.getElementById('delete-all-students-btn').addEventListener('click', () => {
-                    if (confirm('WARNING: Are you sure you want to delete ALL students and ALL shoutouts from the database? This action is permanent.')) {
-                        const confirmation = prompt('To confirm, please type DELETE in the box below.');
-                        if (confirmation === 'DELETE') {
-                            const updates = { '/students': null, '/shoutouts': null };
-                            firebase.database().ref().update(updates)
-                                .then(() => {
-                                    alert('All students and shoutouts have been deleted.');
-                                    manageStudentsModal.style.display = 'none';
-                                })
-                                .catch(err => alert('An error occurred: ' + err.message));
-                        } else {
-                            alert('Deletion cancelled.');
-                        }
+                    if (confirm('ARE YOU SURE you want to delete ALL students? This will affect existing shoutouts and cannot be undone.')) {
+                        database.ref('students').remove();
+                        alert('All students have been deleted.');
                     }
                 });
-
-                document.getElementById('event-list').addEventListener('click', (e) => {
-                    const target = e.target;
-                    const editButton = target.closest('.edit-event-btn');
-                    const deleteButton = target.closest('.delete-event-btn');
-
-                    if (editButton) {
-                        manageEventsModal.style.display = 'none';
-                        openEditEventModal(editButton.dataset.eventId);
-                        return;
-                    }
-                    if (deleteButton) {
-                        if (confirm('Are you sure you want to delete this event?')) {
-                            firebase.database().ref('events/' + deleteButton.dataset.eventId).remove();
-                        }
-                        return;
-                    }
-                });
-
                 document.getElementById('delete-all-events-btn').addEventListener('click', () => {
-                    if (confirm('WARNING: Are you sure you want to delete ALL events from the database? This action is permanent.')) {
-                        const confirmation = prompt('To confirm, please type DELETE in the box below.');
-                        if (confirmation === 'DELETE') {
-                            firebase.database().ref('/events').set(null)
-                                .then(() => {
-                                    alert('All events have been deleted.');
-                                    manageEventsModal.style.display = 'none';
-                                })
-                                .catch(err => alert('An error occurred: ' + err.message));
-                        } else {
-                            alert('Deletion cancelled.');
-                        }
+                    if (confirm('ARE YOU SURE you want to delete ALL events? This action cannot be undone.')) {
+                        database.ref('events').remove();
+                        alert('All events have been deleted.');
                     }
                 });
 
-                // Form Submissions
-                document.getElementById('shoutout-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const shoutoutId = document.getElementById('shoutout-id-input').value;
-                    const reason = document.getElementById('shoutout-reason').value;
-                    const teacher = document.getElementById('teacher-initials').value.toUpperCase();
-                    
-                    if (shoutoutId) {
-                        if (shoutoutRecipients.length !== 1 || shoutoutRecipients[0].type !== 'student') {
-                            return alert('When editing, you must assign the shoutout to exactly one student.');
-                        }
-                        const studentId = shoutoutRecipients[0].id;
-                        const shoutoutUpdates = { reason, teacher, studentId };
-                        firebase.database().ref('shoutouts/' + shoutoutId).update(shoutoutUpdates)
-                            .then(() => addShoutoutModal.style.display = "none");
+
+                document.querySelectorAll('.modal .close-btn').forEach(btn => btn.addEventListener('click', () => btn.closest('.modal').style.display = 'none'));
+                window.addEventListener('click', (event) => { if (event.target.classList.contains('modal')) event.target.style.display = "none"; });
+
+                document.getElementById('login-form').addEventListener('submit', handleLogin);
+                document.getElementById('add-student-form').addEventListener('submit', handleStudentFormSubmit);
+                document.getElementById('add-shoutout-form').addEventListener('submit', handleShoutoutFormSubmit);
+                document.getElementById('add-event-form').addEventListener('submit', handleEventFormSubmit);
+                document.getElementById('bulk-upload-form').addEventListener('submit', handleBulkUpload);
+                document.getElementById('bulk-upload-events-form').addEventListener('submit', handleBulkUploadEvents);
+
+                // --- Shoutout Search Listeners ---
+                const studentSearchInput = document.getElementById('shoutout-student-search');
+                const studentResultsContainer = document.getElementById('shoutout-student-results');
+                studentSearchInput.addEventListener('input', () => {
+                    const searchTerm = studentSearchInput.value.toLowerCase();
+                    document.getElementById('shoutout-student-id').value = ''; 
+                    if (searchTerm.length > 0) {
+                        const filteredStudents = allStudents.filter(s => s.name.toLowerCase().includes(searchTerm));
+                        renderStudentResults(filteredStudents);
                     } else {
-                        if (shoutoutRecipients.length === 0) return alert('Please select at least one student or university.');
-                        let finalStudentIds = new Set();
-                        shoutoutRecipients.forEach(recipient => {
-                            if (recipient.type === 'student') {
-                                finalStudentIds.add(recipient.id);
-                            } else if (recipient.type === 'uni') {
-                                allStudents.forEach(student => {
-                                    if (student.uni === recipient.name) { finalStudentIds.add(student.id); }
-                                });
+                        studentResultsContainer.innerHTML = '';
+                        studentResultsContainer.classList.add('hidden');
+                    }
+                });
+                studentResultsContainer.addEventListener('click', (e) => {
+                    const targetResult = e.target.closest('.student-result-item');
+                    if (targetResult) {
+                        studentSearchInput.value = targetResult.dataset.name;
+                        document.getElementById('shoutout-student-id').value = targetResult.dataset.id;
+                        studentResultsContainer.innerHTML = '';
+                        studentResultsContainer.classList.add('hidden');
+                    }
+                });
+                studentSearchInput.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        studentResultsContainer.innerHTML = '';
+                        studentResultsContainer.classList.add('hidden');
+                    }, 150);
+                });
+
+                // --- Initials Input Custom Validation ---
+                const initialsInput = document.getElementById('shoutout-teacher-initials-input');
+                initialsInput.addEventListener('invalid', () => {
+                    initialsInput.setCustomValidity('Must be 3 characters');
+                });
+                initialsInput.addEventListener('input', () => {
+                    initialsInput.value = initialsInput.value.toUpperCase();
+                    initialsInput.setCustomValidity('');
+                });
+
+                document.body.addEventListener('click', handleDynamicClicks);
+            }
+            
+            function renderStudentResults(filteredStudents) {
+                const resultsContainer = document.getElementById('shoutout-student-results');
+                resultsContainer.innerHTML = '';
+                if (filteredStudents.length === 0) {
+                    resultsContainer.innerHTML = '<div>No students found.</div>';
+                } else {
+                    filteredStudents.forEach(student => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'student-result-item';
+                        resultItem.dataset.id = student.id;
+                        resultItem.dataset.name = student.name;
+                        resultItem.innerHTML = `${student.name} <small>(${student.uni})</small>`;
+                        resultsContainer.appendChild(resultItem);
+                    });
+                }
+                resultsContainer.classList.remove('hidden');
+            }
+
+            function handleLogin(event) {
+                event.preventDefault();
+                const username = document.getElementById('username-input').value.trim().toLowerCase();
+                const password = document.getElementById('password-input').value;
+                database.ref('usernames/' + username).once('value')
+                    .then(snapshot => {
+                        const email = snapshot.val();
+                        if (email) return firebase.auth().signInWithEmailAndPassword(email, password);
+                        throw new Error("Invalid username.");
+                    })
+                    .then(() => document.getElementById('login-modal').style.display = 'none')
+                    .catch(error => alert('Login failed: ' + error.message));
+            }
+
+            function handleStudentFormSubmit(e) {
+                e.preventDefault();
+                const studentId = document.getElementById('student-id-input').value;
+                const studentData = {
+                    name: document.getElementById('student-name-input').value,
+                    uni: document.getElementById('uni-select').value,
+                };
+                const onComplete = (error) => {
+                    if (error) alert("Error: Could not save student data.");
+                    else document.getElementById('add-student-modal').style.display = 'none';
+                };
+                if (studentId) database.ref('students/' + studentId).update(studentData, onComplete);
+                else database.ref('students').push(studentData, onComplete);
+            }
+
+            function handleShoutoutFormSubmit(e) {
+                e.preventDefault();
+
+                // Explicitly check validation before proceeding
+                if (!e.target.checkValidity()) {
+                    // If the form is invalid, the browser will show the validation message.
+                    // We just need to stop the function here.
+                    return;
+                }
+
+                const shoutoutId = document.getElementById('shoutout-id-input').value;
+                const shoutoutData = {
+                    studentId: document.getElementById('shoutout-student-id').value,
+                    reason: document.getElementById('shoutout-reason-input').value,
+                    teacher: document.getElementById('shoutout-teacher-initials-input').value,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (!shoutoutData.studentId) {
+                    alert('Please select a valid student from the list.');
+                    return;
+                }
+
+                const onComplete = (error) => {
+                    if (error) alert("Error saving shoutout.");
+                    else {
+                        e.target.reset();
+                        document.getElementById('add-shoutout-modal').style.display = 'none';
+                    }
+                };
+
+                if(shoutoutId) database.ref('shoutouts/' + shoutoutId).update(shoutoutData, onComplete);
+                else database.ref('shoutouts').push(shoutoutData, onComplete);
+            }
+
+            function handleEventFormSubmit(e) {
+                e.preventDefault();
+                const eventId = document.getElementById('event-id-input').value;
+                const eventData = {
+                    title: document.getElementById('event-title-input').value,
+                    date: document.getElementById('event-date-input').value
+                };
+                const onComplete = (error) => {
+                    if (error) alert("Error saving event.");
+                    else document.getElementById('add-event-modal').style.display = 'none';
+                };
+                if (eventId) database.ref('events/' + eventId).update(eventData, onComplete);
+                else database.ref('events').push(eventData, onComplete);
+            }
+
+            function handleBulkUpload(e) {
+                e.preventDefault();
+                const file = document.getElementById('csv-file-input').files[0];
+                if (!file) return;
+
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        let uploadedCount = 0;
+                        results.data.forEach(row => {
+                            if (row.name && row.uni && ALL_UNIS.includes(row.uni)) {
+                                database.ref('students').push({ name: row.name, uni: row.uni });
+                                uploadedCount++;
                             }
                         });
-                        const pushPromises = [];
-                        finalStudentIds.forEach(studentId => {
-                            const shoutoutData = { studentId, reason, teacher, timestamp: firebase.database.ServerValue.TIMESTAMP };
-                            pushPromises.push(firebase.database().ref('shoutouts').push(shoutoutData));
-                        });
-                        Promise.all(pushPromises).then(() => { addShoutoutModal.style.display = "none"; });
-                    }
-                });
-
-                document.getElementById('add-student-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const studentId = document.getElementById('student-id-input').value;
-                    const studentData = { name: document.getElementById('student-name-input').value, uni: document.getElementById('uni-select').value };
-                    if (studentId) {
-                        firebase.database().ref('students/' + studentId).update(studentData).then(() => addStudentModal.style.display = "none");
-                    } else {
-                        firebase.database().ref('students').push(studentData).then(() => addStudentModal.style.display = "none");
-                    }
-                });
-                
-                document.getElementById('add-event-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const eventId = document.getElementById('event-id-input').value;
-                    const eventDate = document.getElementById('event-date-input').value;
-                    if (!eventDate) return alert('Please select a date for the event.');
-                    const selectedUnis = Array.from(document.querySelectorAll('#event-unis-checkboxes input:checked')).map(cb => cb.value);
-                    if (selectedUnis.length === 0) return alert('Please select at least one involved university.');
-                    const newEventData = { title: document.getElementById('event-title-input').value, date: eventDate, unis: selectedUnis };
-                    
-                    if (eventId) {
-                        firebase.database().ref('events/' + eventId).update(newEventData).then(() => addEventModal.style.display = "none");
-                    } else {
-                        firebase.database().ref('events').push(newEventData).then(() => addEventModal.style.display = "none");
-                    }
-                });
-                
-                document.getElementById('team-sheet-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const eventId = document.getElementById('ts-event-id').value;
-                    const uniName = document.getElementById('ts-uni-name').value;
-                    const teamSheetText = document.getElementById('team-sheet-text').value;
-                    if (!eventId || !uniName) return alert('Error: Missing event data.');
-                    const dbPath = `events/${eventId}/teamSheets/${uniName}`;
-                    firebase.database().ref(dbPath).set(teamSheetText)
-                        .then(() => teamSheetModal.style.display = 'none')
-                        .catch(error => alert('Failed to save team sheet. Error: ' + error.message));
-                });
-                
-                document.getElementById('bulk-add-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const fileInput = document.getElementById('csv-file-input');
-                    if (fileInput.files.length === 0) return alert('Please select a CSV file to upload.');
-                    Papa.parse(fileInput.files[0], {
-                        skipEmptyLines: true,
-                        complete: (results) => {
-                            const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
-                            let studentsToAdd = [];
-                            let skippedRows = 0;
-                            results.data.forEach(row => {
-                                const name = row[0] ? row[0].trim() : '';
-                                const uni = row[1] ? row[1].trim() : '';
-                                if (name && uni && validUnis.includes(uni)) {
-                                    studentsToAdd.push({ name, uni });
-                                } else {
-                                    skippedRows++;
-                                }
-                            });
-                            if(studentsToAdd.length === 0) return alert(`Processing complete. Found ${results.data.length} row(s). ${skippedRows} row(s) were skipped due to incorrect formatting. No valid students were added.`);
-                            const pushPromises = studentsToAdd.map(student => firebase.database().ref('students').push(student));
-                            Promise.all(pushPromises)
-                                .then(() => {
-                                    bulkAddModal.style.display = 'none';
-                                    alert(`Successfully added ${studentsToAdd.length} students.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
-                                })
-                                .catch(error => alert('An error occurred: ' + error.message));
-                        }
-                    });
-                });
-                
-                document.getElementById('bulk-add-events-form').addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const fileInput = document.getElementById('csv-events-file-input');
-                    if (fileInput.files.length === 0) return alert('Please select a CSV file.');
-                    Papa.parse(fileInput.files[0], {
-                        skipEmptyLines: true,
-                        complete: (results) => {
-                            const validUnis = ['Edinburgh', 'Manchester', 'Oxford', 'Warwick'];
-                            let eventsToAdd = [];
-                            let skippedRows = 0;
-                            const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-                            results.data.forEach(row => {
-                                const title = row[0] ? row[0].trim() : '';
-                                const date = row[1] ? row[1].trim() : '';
-                                const unisRaw = row[2] ? row[2].trim() : '';
-                                const dateMatch = date.match(dateRegex);
-                                const eventUnis = unisRaw ? unisRaw.split(',').map(u => u.trim()).filter(u => validUnis.includes(u)) : [];
-                                if (title && dateMatch && eventUnis.length > 0) {
-                                    const formattedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
-                                    eventsToAdd.push({ title, date: formattedDate, unis: eventUnis });
-                                } else {
-                                    skippedRows++;
-                                }
-                            });
-                            if(eventsToAdd.length === 0) return alert(`No valid events found. ${skippedRows} row(s) were skipped due to missing info, invalid date format (DD/MM/YYYY), or invalid universities.`);
-                            const pushPromises = eventsToAdd.map(event => firebase.database().ref('events').push(event));
-                            Promise.all(pushPromises)
-                                .then(() => {
-                                    bulkAddEventsModal.style.display = 'none';
-                                    alert(`Successfully added ${eventsToAdd.length} events.\n${skippedRows > 0 ? `${skippedRows} row(s) were skipped.` : ''}`);
-                                })
-                                .catch(error => alert('An error occurred: ' + error.message));
-                        }
-                    });
-                });
-                
-                // Other UI Listeners
-                document.getElementById('recipient-input').addEventListener('keyup', () => { updateAutocomplete(document.getElementById('recipient-input').value); });
-                document.getElementById('recipient-container').addEventListener('click', (e) => {
-                    if (e.target.classList.contains('remove-tag')) {
-                        const { id } = e.target.dataset;
-                        shoutoutRecipients = shoutoutRecipients.filter(r => (r.id || r.name) !== id);
-                        renderRecipientTags();
-                    } else {
-                        document.getElementById('recipient-input').focus();
-                    }
-                });
-                document.getElementById('autocomplete-results').addEventListener('click', (e) => {
-                    const item = e.target.closest('.autocomplete-item');
-                    if (!item) return;
-                    const { type, id, name } = item.dataset;
-                    shoutoutRecipients.push(type === 'student' ? { type, id, name } : { type, name });
-                    document.getElementById('recipient-input').value = '';
-                    updateAutocomplete('');
-                    renderRecipientTags();
-                    document.getElementById('recipient-input').focus();
-                });
-                
-                document.getElementById('prev-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() - 7); renderCalendar(); });
-                document.getElementById('next-week-btn').addEventListener('click', () => { currentCalendarDate.setDate(currentCalendarDate.getDate() + 7); renderCalendar(); });
-                document.getElementById('this-week-btn').addEventListener('click', () => { currentCalendarDate = new Date(); renderCalendar(); });
-
-                window.addEventListener('click', (event) => {
-                    if (event.target.classList.contains('modal')) {
-                        event.target.style.display = "none";
-                    }
+                        alert(`${uploadedCount} students uploaded successfully!`);
+                        document.getElementById('bulk-upload-modal').style.display = 'none';
+                    },
+                    error: (err) => alert("Error parsing CSV file: " + err.message)
                 });
             }
             
-            // Helper Functions
-            function renderManageStudentsModal(searchTerm = '') {
-                const listEl = document.getElementById('student-list');
-                const lowerSearchTerm = searchTerm.toLowerCase();
-                let studentsHTML = '';
-                
-                allStudents
-                    .filter(student => student.name.toLowerCase().includes(lowerSearchTerm))
-                    .sort((a,b) => a.name.localeCompare(b.name))
-                    .forEach(student => {
-                        studentsHTML += `
-                            <div class="management-list-item">
-                                <span><strong>${student.name}</strong> (${student.uni})</span>
-                                <div class="management-list-actions">
-                                    <button class="admin-icon edit-student-btn" data-student-id="${student.id}">✏️ Edit</button>
-                                    <button class="admin-icon delete-student-btn" data-student-id="${student.id}">🗑️ Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                listEl.innerHTML = studentsHTML;
+            function handleBulkUploadEvents(e) {
+                e.preventDefault();
+                const file = document.getElementById('csv-events-file-input').files[0];
+                if (!file) return;
+
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        let uploadedCount = 0;
+                        const dateRegex = /^\d{8}$/; // DDMMYYYY
+                        results.data.forEach(row => {
+                            if (row.title && row.date && dateRegex.test(row.date.trim())) {
+                                const d = row.date.trim();
+                                const dd = d.substring(0, 2);
+                                const mm = d.substring(2, 4);
+                                const yyyy = d.substring(4, 8);
+                                const formattedDate = `${yyyy}-${mm}-${dd}`; // Convert to YYYY-MM-DD
+
+                                const parsedDate = new Date(formattedDate);
+                                if (parsedDate instanceof Date && !isNaN(parsedDate)) {
+                                     database.ref('events').push({ title: row.title, date: formattedDate });
+                                     uploadedCount++;
+                                }
+                            }
+                        });
+                        alert(`${uploadedCount} events uploaded successfully! Any invalid rows were skipped.`);
+                        document.getElementById('bulk-upload-events-modal').style.display = 'none';
+                    },
+                    error: (err) => alert("Error parsing CSV file: " + err.message)
+                });
             }
 
-            function renderManageEventsModal() {
-                const listEl = document.getElementById('event-list');
-                if(!listEl) return;
-                let eventsHTML = '';
+            function handleDynamicClicks(e) {
+                const target = e.target;
+                const studentId = target.dataset.studentId;
+                const eventId = target.dataset.eventId;
 
-                if (allEvents.length === 0) {
-                    listEl.innerHTML = '<p class="no-events" style="text-align: center; padding: 20px;">No events to manage.</p>';
-                    return;
+                if (target.matches('.delete-shoutout-btn')) {
+                    if (confirm('Are you sure you want to delete this shoutout?')) {
+                        database.ref('shoutouts/' + target.dataset.shoutoutId).remove();
+                    }
+                } else if (target.matches('.edit-shoutout-btn')) {
+                    const shoutout = allShoutouts.find(s => s.id === target.dataset.shoutoutId);
+                    if(shoutout) openShoutoutModal(shoutout);
+                } else if (target.matches('.edit-student-btn')) {
+                    const student = allStudents.find(s => s.id === studentId);
+                    if (student) openStudentModal(student);
+                } else if (target.matches('.delete-student-btn')) {
+                    if (confirm('Are you sure you want to delete this student? This will also remove their shoutouts from view.')) {
+                        database.ref('students/' + studentId).remove();
+                    }
+                } else if (target.matches('.edit-event-btn')) {
+                    const event = allEvents.find(ev => ev.id === eventId);
+                    if (event) openEventModal(event);
+                } else if (target.matches('.delete-event-btn')) {
+                    if (confirm('Are you sure you want to delete this event?')) {
+                        database.ref('events/' + eventId).remove();
+                    }
+                } else if (target.closest('#header-event-carousel')?.contains(target) && target.classList.contains('event-arrow')) {
+                    if (target.disabled) return; 
+                    headerCarouselState.currentIndex += (target.dataset.direction === 'next' ? 1 : -1);
+                    updateHeaderCarouselDisplay();
                 }
-
-                [...allEvents]
-                    .sort((a, b) => new Date(b.date) - new Date(a.date))
-                    .forEach(event => {
-                        const eventDate = new Date(event.date + 'T00:00:00');
-                        const formattedDate = eventDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                        const unisText = Array.isArray(event.unis) ? event.unis.join(', ') : 'No universities listed';
-                        
-                        eventsHTML += `
-                            <div class="management-list-item">
-                                <div>
-                                    <strong>${event.title}</strong>
-                                    <small style="display: block; opacity: 0.7;">${formattedDate} - (${unisText})</small>
-                                </div>
-                                <div class="management-list-actions">
-                                    <button class="admin-icon edit-event-btn" data-event-id="${event.id}">✏️ Edit</button>
-                                    <button class="admin-icon delete-event-btn" data-event-id="${event.id}">🗑️ Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                listEl.innerHTML = eventsHTML;
             }
 
-            function openEditEventModal(eventId = null) {
+            function openStudentModal(student = null) {
+                document.getElementById('manage-students-modal').style.display = 'none';
+                const form = document.getElementById('add-student-form');
+                form.reset();
+                document.getElementById('student-modal-title').textContent = student ? 'Edit Student' : 'Add New Student';
+                document.getElementById('student-submit-btn').textContent = student ? 'Save Changes' : 'Add Student';
+                document.getElementById('student-id-input').value = student ? student.id : '';
+                if(student) {
+                    document.getElementById('student-name-input').value = student.name;
+                    document.getElementById('uni-select').value = student.uni;
+                }
+                document.getElementById('add-student-modal').style.display = 'block';
+            }
+
+            function openShoutoutModal(shoutout = null) {
+                document.getElementById('manage-shoutouts-modal').style.display = 'none';
+                const form = document.getElementById('add-shoutout-form');
+                form.reset();
+                document.getElementById('shoutout-modal-title').textContent = shoutout ? 'Edit Shoutout' : 'Add Shoutout';
+                document.getElementById('shoutout-submit-btn').textContent = shoutout ? 'Save Changes' : 'Submit Shoutout';
+                document.getElementById('shoutout-id-input').value = shoutout ? shoutout.id : '';
+
+                if (shoutout) {
+                    const student = allStudents.find(s => s.id === shoutout.studentId);
+                    if (student) {
+                         document.getElementById('shoutout-student-search').value = student.name;
+                         document.getElementById('shoutout-student-id').value = student.id;
+                    }
+                    document.getElementById('shoutout-reason-input').value = shoutout.reason;
+                    document.getElementById('shoutout-teacher-initials-input').value = shoutout.teacher;
+                }
+                document.getElementById('add-shoutout-modal').style.display = 'block';
+            }
+
+            function openEventModal(event = null) {
+                document.getElementById('manage-events-modal').style.display = 'none';
                 const form = document.getElementById('add-event-form');
                 form.reset();
-                
-                if (eventId) {
-                    const event = allEvents.find(ev => ev.id === eventId);
-                    if (!event) return;
-                    document.getElementById('event-modal-title').textContent = 'Edit Event';
-                    document.getElementById('event-submit-btn').textContent = 'Save Changes';
-                    document.getElementById('event-id-input').value = event.id;
+                document.getElementById('event-modal-title').textContent = event ? 'Edit Event' : 'Add New Event';
+                document.getElementById('event-submit-btn').textContent = event ? 'Save Changes' : 'Add Event';
+                document.getElementById('event-id-input').value = event ? event.id : '';
+                if(event) {
                     document.getElementById('event-title-input').value = event.title;
-                    eventDatepicker.setDate(event.date, true);
-                    document.querySelectorAll('#event-unis-checkboxes input').forEach(checkbox => {
-                        checkbox.checked = event.unis && event.unis.includes(checkbox.value);
-                    });
+                    datePicker.setDate(event.date, true);
                 } else {
-                    document.getElementById('event-modal-title').textContent = 'Add New Event';
-                    document.getElementById('event-submit-btn').textContent = 'Add Event';
-                    document.getElementById('event-id-input').value = '';
-                    eventDatepicker.clear();
+                    datePicker.clear();
                 }
                 document.getElementById('add-event-modal').style.display = 'block';
             }
+
+            function renderShoutoutManagementList() {
+                const listEl = document.getElementById('shoutout-management-list');
+                const sorted = [...allShoutouts].sort((a, b) => b.timestamp - a.timestamp);
+                listEl.innerHTML = sorted.length === 0 ? '<p class="no-data">No shoutouts found.</p>' : '';
+                const studentMap = new Map(allStudents.map(s => [s.id, s.name]));
+
+                sorted.forEach(s => {
+                    const studentName = studentMap.get(s.studentId) || 'Unknown Student';
+                    const dateString = s.timestamp.toLocaleDateString('en-GB');
+                    listEl.insertAdjacentHTML('beforeend', `
+                        <div class="management-list-item">
+                            <div class="management-item-info">
+                                <div><strong>${studentName}:</strong> ${s.reason}</div>
+                                <div class="management-item-details">By ${s.teacher} on ${dateString}</div>
+                            </div>
+                            <div class="management-item-actions">
+                                <button class="management-btn edit-shoutout-btn" data-shoutout-id="${s.id}">Edit</button>
+                                <button class="management-btn delete-shoutout-btn" data-shoutout-id="${s.id}">Delete</button>
+                            </div>
+                        </div>`);
+                });
+            }
+
+            function renderStudentManagementList() {
+                const listEl = document.getElementById('student-management-list');
+                const sorted = [...allStudents].sort((a, b) => a.name.localeCompare(b.name));
+                listEl.innerHTML = sorted.length === 0 ? '<p class="no-data">No students found.</p>' : '';
+                sorted.forEach(s => {
+                    listEl.insertAdjacentHTML('beforeend', `
+                        <div class="management-list-item">
+                             <div class="management-item-info">${s.name} <em>(${s.uni})</em></div>
+                            <div class="management-item-actions">
+                                <button class="management-btn edit-student-btn" data-student-id="${s.id}">Edit</button>
+                                <button class="management-btn delete-student-btn" data-student-id="${s.id}">Delete</button>
+                            </div>
+                        </div>`);
+                });
+            }
+
+            function renderEventManagementList() {
+                const listEl = document.getElementById('event-management-list');
+                const sorted = [...allEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+                 listEl.innerHTML = sorted.length === 0 ? '<p class="no-data">No events found.</p>' : '';
+                sorted.forEach(e => {
+                    listEl.insertAdjacentHTML('beforeend', `
+                        <div class="management-list-item">
+                             <div class="management-item-info">
+                                <div>${e.title}</div>
+                                <div class="management-item-details">${formatEventDate(e.date)}</div>
+                             </div>
+                            <div class="management-item-actions">
+                                <button class="management-btn edit-event-btn" data-event-id="${e.id}">Edit</button>
+                                <button class="management-btn delete-event-btn" data-event-id="${e.id}">Delete</button>
+                            </div>
+                        </div>`);
+                });
+            }
             
-            // --- START APP ---
-            displayCurrentDate();
             setupEventListeners();
-            eventDatepicker = flatpickr("#event-date-input", { dateFormat: "Y-m-d", altInput: true, altFormat: "F j, Y", });
         });
     </script>
 </body>
 </html>
-
-
-
-
