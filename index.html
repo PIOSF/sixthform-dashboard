@@ -288,7 +288,7 @@
             <div class="modal-scroll-content">
                 <form id="add-shoutout-form" class="modal-form">
                     <input type="hidden" id="shoutout-id-input">
-                    <input type="hidden" id="shoutout-student-id" required>
+                    <input type="hidden" id="shoutout-student-id">
                     
                     <label for="shoutout-student-search">Student:</label>
                     <div class="student-search-container">
@@ -852,36 +852,48 @@
             function handleShoutoutFormSubmit(e) {
                 e.preventDefault();
 
-                // Explicitly check validation before proceeding
-                if (!e.target.checkValidity()) {
-                    // If the form is invalid, the browser will show the validation message.
-                    // We just need to stop the function here.
+                // Get values first for manual check
+                const studentId = document.getElementById('shoutout-student-id').value;
+                const reason = document.getElementById('shoutout-reason-input').value.trim();
+                const initials = document.getElementById('shoutout-teacher-initials-input').value;
+
+                // --- Manual Validation Block ---
+                if (!studentId) {
+                    alert('Please select a student from the search results.');
                     return;
                 }
+                if (reason === '') {
+                    alert('Please enter a reason for the shoutout.');
+                    return;
+                }
+                if (initials.length !== 3) {
+                    alert('Teacher initials must be exactly 3 characters.');
+                    return;
+                }
+                // --- End of Validation ---
 
                 const shoutoutId = document.getElementById('shoutout-id-input').value;
                 const shoutoutData = {
-                    studentId: document.getElementById('shoutout-student-id').value,
-                    reason: document.getElementById('shoutout-reason-input').value,
-                    teacher: document.getElementById('shoutout-teacher-initials-input').value,
+                    studentId: studentId,
+                    reason: reason,
+                    teacher: initials,
                     timestamp: new Date().toISOString()
                 };
 
-                if (!shoutoutData.studentId) {
-                    alert('Please select a valid student from the list.');
-                    return;
-                }
-
                 const onComplete = (error) => {
-                    if (error) alert("Error saving shoutout.");
-                    else {
+                    if (error) {
+                        alert("Error saving shoutout.");
+                    } else {
                         e.target.reset();
                         document.getElementById('add-shoutout-modal').style.display = 'none';
                     }
                 };
 
-                if(shoutoutId) database.ref('shoutouts/' + shoutoutId).update(shoutoutData, onComplete);
-                else database.ref('shoutouts').push(shoutoutData, onComplete);
+                if(shoutoutId) {
+                    database.ref('shoutouts/' + shoutoutId).update(shoutoutData, onComplete);
+                } else {
+                    database.ref('shoutouts').push(shoutoutData, onComplete);
+                }
             }
 
             function handleEventFormSubmit(e) {
